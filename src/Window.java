@@ -29,8 +29,8 @@ import java.util.TreeSet;
 
 public class Window extends JFrame {
 
-    private static int width = 1600;
-    private static int height = 900;
+    public static int width = 1600;
+    public static int height = 900;
 
     public static int xMouse = 0;
     public static int yMouse = 0;
@@ -39,7 +39,7 @@ public class Window extends JFrame {
 
     public static boolean fullscreen = false;
 
-    public static boolean fenetrer_without_border = false;
+    public static boolean fenetrer_without_border = true;
 
     public static int divident_ts = 18;
 
@@ -81,98 +81,8 @@ public class Window extends JFrame {
     }
 
     public void run() {
-        Random rand = new Random();
-        int size_game_y = height; // ratio = 1.38
-        int size_game_x = (int) Math.round((size_game_y * 1.38888888888) / 10.0f) * 10;
-        int x_offset = (int) Math.round((width * 0.052083) / 10.0f) * 10;
-        ;
-        System.out.println("size: " + width + "x" + getheight());
-        System.out.println(size_game_x + "x" + size_game_y);
-        System.out.println("x_offset: " + x_offset);
-        System.out.println("ts: " + Ts);
-        while (true) {
-            int id = 0;
-            for (int y = x_offset; y < size_game_x + x_offset; y += Ts) {
-                id = rand.nextInt();
-                if (id % 7 == 0) {
-                    drawTexture(y, 0, Ts, Ts, Texture.floor_grillage_middle);
-                } else {
-                    drawTexture(y, 0, Ts, Ts, Texture.floor_grillage);
-                }
-            }
-            for (int i = Ts; i < size_game_y; i += Ts) {
-                for (int y = x_offset; y < size_game_x + x_offset; y += Ts) {
-                    id = rand.nextInt();
-                    int temp = id % 60;
-                        switch (temp) {
-                            case 0:
-                            case 1:
-                            case 2:
-                            case 3:
-                            case 4:
-                            case 5:
-                            case 20:
-                            case 21:
-                            case 22:
-                            case 23:
-                            case 24:
-                            case 13:
-                            case 29:
-                            case 30:
-                                drawTexture(y, i, Ts, Ts, Texture.floor_none);
-                                break;
-
-                            case 6:
-                            case 7:
-                            case 8:
-                            case 9:
-                            case 25:
-                            case 26:
-                            case 27:
-                            case 28:
-                                drawTexture(y, i, Ts, Ts, Texture.floor_shovel);
-                                break;
-
-                            case 10:
-                            case 11:
-                            case 12:
-                                drawTexture(y, i, Ts, Ts, Texture.floor_bones);
-                                break;
-
-                            case 14:
-                            case 15:
-                                drawTexture(y, i, Ts, Ts, Texture.floor_tombestone);
-                                break;
-
-                            case 16:
-                                drawTexture(y, i, Ts, Ts, Texture.floor_mossy_tombestone);
-                                break;
-
-                            case 17:
-                            case 18:
-                                drawTexture(y, i, Ts, Ts, Texture.floor_hand_bones);
-                                break;
-
-                            case 19:
-                                drawTexture(y, i, Ts, Ts, Texture.floor_mossy_hand_bones);
-                                break;
-
-                            default:
-                                drawTexture(y, i, Ts, Ts, Texture.floor);
-                                break;
-                    }
-                }
-            }
-
-
-            refresh();
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-        }
+            Game g = new Game();
+            g.run();
     }
 
 
