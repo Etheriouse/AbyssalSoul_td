@@ -11,7 +11,7 @@ public class Level {
     private int wave;
     private int actual_vague;
 
-    private List<Even<Point, Direction>> path;
+    private ArrayList<Even<Point, Direction>> path = new ArrayList<>();
 
     private int type_entry;
 
@@ -35,11 +35,11 @@ public class Level {
             boolean getfloor = false;
             int y = 0;
             while ((line = file_.readLine()) != null) {
-                if (line.contains("start")) {
-                    fillPath(split(line, "(),=>"));
-                } else if (line.contains("end")) {
+                if (line.contains("end")) {
                     String content[] = split(line, "(),=>");
-                    this.end = new Point(Integer.parseInt(content[1]), Integer.parseInt(content[1]));
+                    this.end = new Point(Integer.parseInt(content[1]), Integer.parseInt(content[2]));
+                } else if (line.contains("start")) {
+                    fillPath(split(line, "(),=>"));
                 } else if (line.contains("wave")) {
                     String content[] = split(line, "(),=>");
                     this.wave = Integer.parseInt(content[1]);
@@ -91,6 +91,7 @@ public class Level {
             ;
             this.path.add(new Even(new Point(Integer.parseInt(content[i]), Integer.parseInt(content[i + 1])), d));
         }
+        this.path.add(new Even(this.end, Direction.null_));
     }
 
     private String[] split(String s, String regex) {
@@ -150,6 +151,7 @@ public class Level {
      * £ = tombestone
      * $ = mossy tombestone
      * ^ = bone
+     * + = skull
      */
     public void showDecors() {
         for (int[] is : floor) {
@@ -193,6 +195,9 @@ public class Level {
             case 94:
                 return Texture.floor_bones;
 
+            case 43:
+                return Texture.floor_skull;
+
             default:
                 return Texture.error;
         }
@@ -203,47 +208,23 @@ public class Level {
         int y = d.y;
         int x_ = s.x;
         int y_ = s.y;
-        if (x_ != 0) {
-            if (x_ > 0) {
-                // pos = right
-                if (y > 0) {
-                    // right bot
-                    return 5;
-                } else {
-                    return 3;
-                    // right top
-                }
-            } else {
-                if (y > 0) {
-                    return 4;
-                    // left bot
-                } else {
-                    return 2;
-                    // left top
-                }
-            }
-            // cas de source dif de 0 donc dest = y up or down
-        } else {
-            // cas de source == 0 donc dest = y right or left
-            if (y_ > 0) {
-                // pos = right
-                if (x > 0) {
-                    // right bot
-                    return 3;
-                } else {
-                    return 5;
-                    // right top
-                }
-            } else {
-                if (x > 0) {
-                    // left bot
-                    return 2;
-                } else {
-                    return 4;
-                    // left top
-                }
-            }
+        if((x == 1 && y_ == -1) || (x_ == -1 && y == 1)) {
+            // top right
+            return 2;
         }
+        if((x == 1 && y_ == 1) || (x_ == -1 && y == -1)) {
+            //bot right
+            return 4;
+        }
+        if((x == -1 && y_ == -1) || (x_ == 1 && y == 1)) {
+            //top left
+            return 5;
+        }
+        if((x == -1 && y_ == 1) || (x_ == 1 && y == -1)) {
+            // bot left
+            return 3;
+        }
+        return -1;
     }
 
     private Image getTexturePathFromInt(int n) {
@@ -276,6 +257,8 @@ public class Level {
         int size_game_x = (int) Math.round((size_game_y * 1.38888888888) / 10.0f) * 10;
         int x_offset = (int) Math.round((Window.width * 0.052083) / 10.0f) * 10;
         int a = 0, b = 0;
+        //System.out.println(Window.Ts);
+
         for (int i = 0; i < size_game_y; i += Window.Ts) {
             for (int y = x_offset; y < size_game_x + x_offset; y += Window.Ts) {
                 Window.drawTexture(y, i, Window.Ts, Window.Ts, getTextureFromInt(this.floor[b][a]));
@@ -285,19 +268,32 @@ public class Level {
             b++;
         }
 
-        for (int i = 0; i < path.size() - 1; i += 1) {
+        for(int y = 0; y<size_game_y; y+=Window.Ts) {
+            for(int x = (100-Window.Ts); x>=-50; x-=Window.Ts) {
+                Window.drawTexture(x, y, Window.Ts, Window.Ts, Texture.side_bricks);
+            }
+        }
+
+        for(int y = 0; y<size_game_y; y+=Window.Ts) {
+            for(int x = size_game_x; x<Window.width+Window.Ts; x+=Window.Ts) {
+                Window.drawTexture(x, y, Window.Ts, Window.Ts, Texture.side_bricks);
+            }
+        }
+
+        int sub = 1;
+
+        for (int i = 0; i < path.size()-1; i += 1) {
             Even<Point, Direction> s = path.get(i);
             Even<Point, Direction> d = path.get(i + 1);
-            System.out.println(i);
             if (s.two.x != 0) {
                 if (s.two.x > 0) {
-                    for (int j = 1; j < Math.abs(d.one.x - s.one.x); j++) {
+                    for (int j = sub; j < Math.abs(d.one.x - s.one.x); j++) {
                         Window.drawTexture(x_offset + (s.one.x + j) * Window.Ts, s.one.y * Window.Ts, Window.Ts,
                                 Window.Ts,
                                 getTexturePathFromInt(1));
                     }
                 } else {
-                    for (int j = 1; j < Math.abs(d.one.x - s.one.x); j++) {
+                    for (int j = sub; j < Math.abs(d.one.x - s.one.x); j++) {
                         Window.drawTexture(x_offset + (s.one.x - j) * Window.Ts, s.one.y * Window.Ts, Window.Ts,
                                 Window.Ts,
                                 getTexturePathFromInt(1));
@@ -306,12 +302,12 @@ public class Level {
             }
             if (s.two.y != 0) {
                 if (s.two.y > 0) {
-                    for (int j = 1; j < Math.abs(d.one.y - s.one.y); j++) {
+                    for (int j = sub; j < Math.abs(d.one.y - s.one.y); j++) {
                         Window.drawTexture(x_offset + (s.one.x) * Window.Ts, (s.one.y + j) * Window.Ts, Window.Ts,
                                 Window.Ts, getTexturePathFromInt(0));
                     }
                 } else {
-                    for (int j = 1; j < Math.abs(d.one.y - s.one.y); j++) {
+                    for (int j = sub; j < Math.abs(d.one.y - s.one.y); j++) {
                         Window.drawTexture(x_offset + (s.one.x) * Window.Ts, (s.one.y - j) * Window.Ts, Window.Ts,
                                 Window.Ts, getTexturePathFromInt(0));
                     }
@@ -321,6 +317,9 @@ public class Level {
                     getTexturePathFromInt(getDirectionFromPoint(s.two, d.two)));
 
         }
+        Window.drawTexture(x_offset+this.end.x*Window.Ts, this.end.y*Window.Ts, Window.Ts, Window.Ts, Texture.floor_grillage_portail_exit);
+        Window.drawTexture(x_offset+this.path.get(0).one.x*Window.Ts, this.path.get(0).one.y*Window.Ts, Window.Ts, Window.Ts, Texture.portal);
+
         Window.refresh();
     }
 
@@ -344,13 +343,18 @@ class Point {
         this.x = x;
         this.y = y;
     }
+
+    public String toString() {
+        return "x: " + x + " " + "y: " + y + " ";
+    }
 }
 
 enum Direction {
     right(1, 0),
     left(-1, 0),
     up(0, -1),
-    down(0, 1);
+    down(0, 1),
+    null_(0, 0);
 
     public int x;
     public int y;

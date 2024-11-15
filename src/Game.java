@@ -1,5 +1,5 @@
 public class Game {
-    
+
     Level levels[] = init_levels();
     int level_actual = 0;
 
@@ -18,9 +18,8 @@ public class Game {
     }
 
     public void run() {
-        levels[level_actual].showDecors();
+        print();
         while (true) {
-            print();
         }
     }
 

@@ -89,6 +89,8 @@ public class Window extends JFrame {
     private void Setup() {
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
         this.setResizable(false);
+        this.setIconImage(Texture.icon);
+        this.setTitle("AbyssalSoul");
         if (fullscreen && true) {
             GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
             gd.setFullScreenWindow(this); // Mettre le JFrame en plein écran
@@ -112,7 +114,7 @@ public class Window extends JFrame {
         this.setVisible(true);
 
         Cursor gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
-                new ImageIcon("assets/cursor/cursor.png").getImage(), new Point(0, 0), "gauntlet cursor");
+                new ImageIcon("assets/texture/cursor/cursor.png").getImage(), new Point(0, 0), "gauntlet cursor");
         this.setCursor(gauntletCursor);
         keysDown = new TreeSet<Integer>();
         this.addKeyListener(new KeyListener() {
@@ -178,11 +180,11 @@ public class Window extends JFrame {
     private void changeCursor(boolean clicked) {
         if (clicked) {
             Cursor gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
-                    new ImageIcon("assets/cursor/cursor_clicked.png").getImage(), new Point(0, 0), "gauntlet cursor");
+                    new ImageIcon("assets/texture/cursor/cursor_clicked.png").getImage(), new Point(0, 0), "gauntlet cursor");
             this.setCursor(gauntletCursor);
         } else {
             Cursor gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
-                    new ImageIcon("assets/cursor/cursor.png").getImage(), new Point(0, 0), "gauntlet cursor");
+                    new ImageIcon("assets/texture/cursor/cursor.png").getImage(), new Point(0, 0), "gauntlet cursor");
             this.setCursor(gauntletCursor);
         }
     }
