@@ -23,6 +23,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -38,7 +39,11 @@ public class Window extends JFrame {
 
     public static boolean fullscreen = false;
 
-    public static int Ts = (int) (height/18); // 90 60 for 1080p
+    public static boolean fenetrer_without_border = false;
+
+    public static int divident_ts = 18;
+
+    public static int Ts = (int) (height / divident_ts); // 90 60 for 1080p
 
     private static BufferedImage onscreenImage = new BufferedImage(2000, 2000, BufferedImage.TYPE_INT_ARGB);
     private static BufferedImage offscreenImage = new BufferedImage(2000, 2000, BufferedImage.TYPE_INT_ARGB);
@@ -58,7 +63,7 @@ public class Window extends JFrame {
     }
 
     public int getheight() {
-        return height+this.getInsets().top;
+        return height;
     }
 
     public void setheight(int n) {
@@ -72,73 +77,133 @@ public class Window extends JFrame {
     }
 
     public Window() {
-
+        Setup();
     }
-
-    private static Image getImage(String s) {
-        return new ImageIcon(s).getImage();
-    }
-
-    Image mod1 = getImage("assets/map/carlage.png");
-    Image mod1bis = getImage("assets/map/carlage_abimer.png");
-
-    Image side = getImage("assets/map/sideScreen.png");
 
     public void run() {
-        Setup();
-        int size_game_y = height; //ratio = 1.38
-        int size_game_x = (int) Math.round((size_game_y*1.38888888888) / 10.0f) * 10;
-        int x_offset = (int) Math.round((width*0.052083) / 10.0f) * 10;;
-        System.out.println("size: " + width +"x"+getheight());
-        System.out.println(size_game_x+"x"+size_game_y);
+        Random rand = new Random();
+        int size_game_y = height; // ratio = 1.38
+        int size_game_x = (int) Math.round((size_game_y * 1.38888888888) / 10.0f) * 10;
+        int x_offset = (int) Math.round((width * 0.052083) / 10.0f) * 10;
+        ;
+        System.out.println("size: " + width + "x" + getheight());
+        System.out.println(size_game_x + "x" + size_game_y);
         System.out.println("x_offset: " + x_offset);
         System.out.println("ts: " + Ts);
-        while(true) {
-            refresh();
-            for(int i = 0; i<size_game_y; i+=Ts) {
-                for(int y = x_offset; y<size_game_x+x_offset; y+=Ts) {
-                    drawTexture(y, i, Ts, Ts, mod1);
-                    drawString(i+"", 40, y+10, i-10);
+        while (true) {
+            int id = 0;
+            for (int y = x_offset; y < size_game_x + x_offset; y += Ts) {
+                id = rand.nextInt();
+                if (id % 7 == 0) {
+                    drawTexture(y, 0, Ts, Ts, Texture.floor_grillage_middle);
+                } else {
+                    drawTexture(y, 0, Ts, Ts, Texture.floor_grillage);
                 }
             }
-            drawTexture(0, 0, x_offset, size_game_y, side);
-            int a = (width/2)-100;
-            int b = height/2;
+            for (int i = Ts; i < size_game_y; i += Ts) {
+                for (int y = x_offset; y < size_game_x + x_offset; y += Ts) {
+                    id = rand.nextInt();
+                    int temp = id % 60;
+                        switch (temp) {
+                            case 0:
+                            case 1:
+                            case 2:
+                            case 3:
+                            case 4:
+                            case 5:
+                            case 20:
+                            case 21:
+                            case 22:
+                            case 23:
+                            case 24:
+                            case 13:
+                            case 29:
+                            case 30:
+                                drawTexture(y, i, Ts, Ts, Texture.floor_none);
+                                break;
+
+                            case 6:
+                            case 7:
+                            case 8:
+                            case 9:
+                            case 25:
+                            case 26:
+                            case 27:
+                            case 28:
+                                drawTexture(y, i, Ts, Ts, Texture.floor_shovel);
+                                break;
+
+                            case 10:
+                            case 11:
+                            case 12:
+                                drawTexture(y, i, Ts, Ts, Texture.floor_bones);
+                                break;
+
+                            case 14:
+                            case 15:
+                                drawTexture(y, i, Ts, Ts, Texture.floor_tombestone);
+                                break;
+
+                            case 16:
+                                drawTexture(y, i, Ts, Ts, Texture.floor_mossy_tombestone);
+                                break;
+
+                            case 17:
+                            case 18:
+                                drawTexture(y, i, Ts, Ts, Texture.floor_hand_bones);
+                                break;
+
+                            case 19:
+                                drawTexture(y, i, Ts, Ts, Texture.floor_mossy_hand_bones);
+                                break;
+
+                            default:
+                                drawTexture(y, i, Ts, Ts, Texture.floor);
+                                break;
+                    }
+                }
+            }
 
 
-            setColor(Color.white);
-            drawString("Abyssal Soul", 120, a+2, b+2);
-            drawString("Abyssal Soul", 120, a-2, b-2);
-            drawString("Abyssal Soul", 120, a+2, b-2);
-            drawString("Abyssal Soul", 120, a-2, b+2);
-
-            setColor(Color.black);
-            drawString("Abyssal Soul", 120, a, b);
+            refresh();
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
     }
 
+
     private void Setup() {
         this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-
-        if(fullscreen && true) {
+        this.setResizable(false);
+        if (fullscreen && true) {
             GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-            this.setUndecorated(true); // Supprimer la barre de titre et les bordures
             gd.setFullScreenWindow(this); // Mettre le JFrame en plein écran
 
             height = Toolkit.getDefaultToolkit().getScreenSize().height;
             width = Toolkit.getDefaultToolkit().getScreenSize().width;
-            Ts = (int) (height/18);
+            Ts = (int) (height / divident_ts);
+        }
+        if (fenetrer_without_border) {
+            this.setUndecorated(true); // Supprimer la barre de titre et les bordures
+            height = Toolkit.getDefaultToolkit().getScreenSize().height;
+            width = Toolkit.getDefaultToolkit().getScreenSize().width;
+            Ts = (int) (height / divident_ts);
+            this.setSize(width, height); // resize for get the top inset
+            this.setVisible(true);
         } else {
             this.setVisible(true);
-            this.setSize(width, height+this.getInsets().top); //resize for get the top inset
+            this.setSize(width, height + this.getInsets().top); // resize for get the top inset
         }
         this.setContentPane(panel);
         this.setVisible(true);
 
-
-        //Cursor gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
-        //        Cursor, new Point(0, 0), "gauntlet cursor");
-        //this.setCursor(gauntletCursor);
+        Cursor gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+                new ImageIcon("assets/cursor/cursor.png").getImage(), new Point(0, 0), "gauntlet cursor");
+        this.setCursor(gauntletCursor);
         keysDown = new TreeSet<Integer>();
         this.addKeyListener(new KeyListener() {
             @Override
@@ -166,7 +231,8 @@ public class Window extends JFrame {
             @Override
             public void mousePressed(MouseEvent e) {
                 xMouse = e.getX();
-                yMouse = e.getY() - MarginTop;;
+                yMouse = e.getY() - MarginTop;
+                ;
                 changeCursor(true);
                 Click = true;
             }
@@ -202,11 +268,11 @@ public class Window extends JFrame {
     private void changeCursor(boolean clicked) {
         if (clicked) {
             Cursor gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
-                    new ImageIcon("assets/cursor_clicked.png").getImage(), new Point(0, 0), "gauntlet cursor");
+                    new ImageIcon("assets/cursor/cursor_clicked.png").getImage(), new Point(0, 0), "gauntlet cursor");
             this.setCursor(gauntletCursor);
         } else {
             Cursor gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
-                new ImageIcon("assets/cursor.png").getImage(), new Point(0, 0), "gauntlet cursor");
+                    new ImageIcon("assets/cursor/cursor.png").getImage(), new Point(0, 0), "gauntlet cursor");
             this.setCursor(gauntletCursor);
         }
     }
@@ -241,10 +307,10 @@ public class Window extends JFrame {
     }
 
     public static void drawTexture(int x, int y, int sizeX, int sizeY, int angle, Image texture) {
-        rotation.rotate(Math.toRadians(angle), x+(sizeX/2), y+(sizeY/2));
+        rotation.rotate(Math.toRadians(angle), x + (sizeX / 2), y + (sizeY / 2));
         offscreen.setTransform(rotation);
         offscreen.drawImage(texture, x, y, sizeX, sizeY, null);
-        rotation.rotate(Math.toRadians(-angle), x+(sizeX/2), y+(sizeY/2));
+        rotation.rotate(Math.toRadians(-angle), x + (sizeX / 2), y + (sizeY / 2));
         offscreen.setTransform(rotation);
     }
 
@@ -252,7 +318,8 @@ public class Window extends JFrame {
         Color couleur1 = Color.decode(color1);
         Color couleur2 = Color.decode(color2);
 
-        GradientPaint gradient = new GradientPaint(x, y+(height/2), couleur1, x + width, y + (height/2), couleur2);
+        GradientPaint gradient = new GradientPaint(x, y + (height / 2), couleur1, x + width, y + (height / 2),
+                couleur2);
         offscreen.setPaint(gradient);
         offscreen.fillRect(x, y, width, height);
     }
