@@ -1,4 +1,6 @@
+package Interface;
 import java.awt.Image;
+import java.util.Map;
 
 import javax.swing.ImageIcon;
 
@@ -33,9 +35,20 @@ public class Texture {
 
     public static Image side_bricks = getImage(path_asset+"map/interface/side_stone.png");
 
+    public static Image range_texture = getImage(path_asset+"entity/range.png");
+    public static Image hitbox_texture = getImage(path_asset+"entity/hitbox.png");
+
     public static Image icon = getImage(path_asset+"icon/icon.png");
 
     public static Image error = getImage(path_asset+"map/error.png");
+
+    public static Map<String, Image> textures_entity = Map.of(
+        "none", getImage(path_asset+"entity/none.png"),
+        "tibo", getImage(path_asset+"entity/tower/tibo.png"),
+        "rune_crystal", getImage(path_asset+"entity/tower/rune_crystal.png"),
+        "rune_crystal_atk", getImage(path_asset+"entity/tower/rune_crystal_atk.png"),
+        "bloon", getImage(path_asset+"entity/mob/bloon.png")
+    );
 
     private static Image getImage(String s) {
         return new ImageIcon(s).getImage();

@@ -1,3 +1,4 @@
+package Interface;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
@@ -11,6 +12,8 @@ import java.awt.GradientPaint;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
+
+import Map.Game;
 
 import java.awt.Image;
 import java.awt.Point;
@@ -32,6 +35,8 @@ public class Window extends JFrame {
     public static int width = 1600;
     public static int height = 900;
 
+    public static int x_offset = (int) Math.round((Window.width * 0.052083) / 10.0f) * 10;
+
     public static int xMouse = 0;
     public static int yMouse = 0;
 
@@ -39,7 +44,7 @@ public class Window extends JFrame {
 
     public static boolean fullscreen = false;
 
-    public static boolean fenetrer_without_border = true;
+    public static boolean fenetrer_without_border = false;
 
     public static int divident_ts = 18;
 
@@ -81,8 +86,8 @@ public class Window extends JFrame {
     }
 
     public void run() {
-            Game g = new Game();
-            g.run();
+        Game g = new Game();
+        g.run();
     }
 
 
@@ -243,6 +248,31 @@ public class Window extends JFrame {
     public static void cls() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
+    }
+
+    /**
+     * Offset x compenser dans la fonction
+     * @param x coordonner x a verifier
+     * @param y coordonner y a verifier
+     * @param i coordonner de la case en x
+     * @param j coordonner de la case en y
+     * @return
+     */
+    public static boolean isOnCase(int x, int y, int i, int j) {
+        return (x-x_offset)/Ts == i && (y)/Ts == j;
+    }
+
+    /**
+     * Offset x compenser dans la fonction
+     * @param x coordonner x a verifier
+     * @param y coordonner y a verifier
+     * @param i coordonner de la case en x pixel
+     * @param j coordonner de la case en y pixel
+     * @return
+     * @note version precise au pixel pret de la fonction isOnCase
+     */
+    public static boolean isOnCase_p(int x, int y, int i, int j) {
+        return (x-x_offset) == i && y == j;
     }
 }
 
