@@ -76,7 +76,7 @@ public class Tower extends Entity {
             while (m.hasNext()) {
                 Mob entity = m.next();
                 if (isInRange(entity)) {
-                    if (System.nanoTime() - last_atk_time >= cooldown) {
+                    if (System.nanoTime() - last_atk_time >= getcouldown()) {
                         this.dealDamage(entity);
                         if (entity.dead()) {
                             cash += entity.getCash();
@@ -87,7 +87,7 @@ public class Tower extends Entity {
                 }
             }
         } else if (mods == 1) { // laster
-            if (System.nanoTime() - last_atk_time >= cooldown) {
+            if (System.nanoTime() - last_atk_time >= getcouldown()) {
                 ArrayList<Mob> inRange = new ArrayList<>();
 
                 for (Mob mob : mobs) {
@@ -132,7 +132,7 @@ public class Tower extends Entity {
 
         } else if (mods == 2) { //first
 
-            if (System.nanoTime() - last_atk_time >= cooldown) {
+            if (System.nanoTime() - last_atk_time >= getcouldown()) {
                 ArrayList<Mob> inRange = new ArrayList<>();
 
                 for (Mob mob : mobs) {
@@ -177,7 +177,7 @@ public class Tower extends Entity {
             }
 
         } else if (mods == 3) { // more hp
-            if (System.nanoTime() - last_atk_time >= cooldown) {
+            if (System.nanoTime() - last_atk_time >= getcouldown()) {
                 ArrayList<Mob> inRange = new ArrayList<>();
 
                 for (Mob mob : mobs) {
@@ -221,7 +221,7 @@ public class Tower extends Entity {
             }
 
         } else {
-            if (System.nanoTime() - last_atk_time >= cooldown) {
+            if (System.nanoTime() - last_atk_time >= getcouldown()) {
                 ArrayList<Mob> inRange = new ArrayList<>();
 
                 for (Mob mob : mobs) {
@@ -254,6 +254,10 @@ public class Tower extends Entity {
 
         }
         return cash;
+    }
+
+    public long getcouldown() {
+        return this.cooldown;
     }
 
     private int distance(int x_d, int y_d, int x_s, int y_s) {

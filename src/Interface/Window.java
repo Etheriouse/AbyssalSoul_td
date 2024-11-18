@@ -26,7 +26,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -61,7 +60,7 @@ public class Window extends JFrame {
     private static ImagePanel panel = new ImagePanel(onscreenImage);
 
     public static TreeSet<Integer> keysDown;
-    public static TreeMap<String, Long> cooldown = new TreeMap<>();
+    private static TreeMap<Integer, Long> cooldown = new TreeMap<>();
 
     public int getwidth() {
         return width;
@@ -170,6 +169,8 @@ public class Window extends JFrame {
 
         });
 
+        cooldown.put(KeyEvent.VK_SPACE, System.currentTimeMillis());
+
         File ancien_font = new File("assets/font/ancien.ttf");
         try {
             setStringFont(Font.createFont(0, ancien_font));
@@ -180,6 +181,14 @@ public class Window extends JFrame {
             System.out.println("IOException execption: " + e1);
             e1.printStackTrace();
         }
+    }
+
+    public static boolean cooldown(int key) {
+        return System.currentTimeMillis()-cooldown.get(key) > 200;
+    }
+
+    public static void resetcooldown(int key) {
+        cooldown.put(key, System.currentTimeMillis());
     }
 
     private void changeCursor(boolean clicked) {

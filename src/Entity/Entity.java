@@ -3,7 +3,6 @@ package Entity;
 import java.awt.Image;
 
 import Interface.Texture;
-import Interface.Window;
 import Map.Element.Elementary;
 import Math.Point;
 

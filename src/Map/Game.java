@@ -8,8 +8,10 @@ public class Game {
     int level_actual = 0;
 
     public final int max_level = 10;
-    public int fps = 60;
-    public final int tick = 40; // tick 40 rate normally
+    public int fps = 120;
+    public final int init_tick = 30;
+    public int tick = init_tick; // tick 30 rate normally
+    public static int speed_up = 4;
 
     public static final int maxWave = 6;
 
@@ -50,7 +52,17 @@ public class Game {
 
 
         while (!isFailed()) {
-
+            /**
+             *
+             * if (Window.keysDown.contains(KeyEvent.VK_SPACE)) {
+             * if (Window.cooldown(KeyEvent.VK_SPACE)) {
+             * Window.resetcooldown(KeyEvent.VK_SPACE);
+             * pause = !pause;
+             * }
+             *
+             * }
+             *
+             */
             now = System.nanoTime();
 
             if (now - tick_time > duration_tick) {

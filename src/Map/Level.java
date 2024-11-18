@@ -2,12 +2,9 @@ package Map;
 
 import java.awt.Image;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.IntStream;
 
 import Entity.Mob;
 import Entity.Tower;
@@ -22,8 +19,9 @@ public class Level {
 
     private int level;
 
+    @SuppressWarnings("unused")
     private int wave = Game.maxWave;
-    private int actual_vague = 2;
+    private int actual_vague = 0;
 
     @SuppressWarnings("unchecked")
     private Even<Integer, String> waves[][] = new Even[Game.maxWave][];
@@ -54,9 +52,9 @@ public class Level {
     public Level(String path) {
         decompile_from_file(path);
         fillWave();
-        tower.add(new Tower(Window.x_offset + 8*Window.Ts, 14*Window.Ts, "rune_crystal", Elementary.Rune, 10, 1.75, 700, 4));
+        tower.add(new Tower(Window.x_offset + 8*Window.Ts, 14*Window.Ts, "rune_crystal", Elementary.Rune, 1, 1.75, 700, 4));
         //tower.add(new Tower(Window.x_offset + 14*Window.Ts, 14*Window.Ts, "rune_crystal", Elementary.Rune, 10, 1.75, 700, 1));
-        
+
         this.level = 1;
     }
 
@@ -445,10 +443,13 @@ public class Level {
 
         Window.drawString("cash", 40, size_game_x-Window.x_offset, 200);
         Window.drawString(""+this.cash, 40, size_game_x-Window.x_offset, 240);
-    
+        Window.drawTexture(size_game_x, 200, Window.Ts, Window.Ts, Texture.cash_coin);
+
+
         Window.drawString("life", 40, size_game_x-Window.x_offset, 280);
         Window.drawString(""+this.life, 40, size_game_x-Window.x_offset, 320);
-    
+        Window.drawTexture(size_game_x, 280, Window.Ts, Window.Ts, Texture.heart);
+
 
     }
 
@@ -476,12 +477,15 @@ public class Level {
         for (Tower tower : tower) {
             cash+=tower.attack(mob, path);
         }
-        
+
         if(actual_vague == waves.length) {
            System.out.println("level finish, todo next");
         } else {
             if(enemy_spawn_index == waves[actual_vague].length) {
-                nextWave();
+                if(mob.isEmpty()) {
+                    System.out.println("next wave");
+                    nextWave();
+                }
             } else {
                 if(System.currentTimeMillis()-Game.start_level > waves[actual_vague][enemy_spawn_index].one) {
                     spawnMob(waves[actual_vague][enemy_spawn_index].two);
@@ -490,12 +494,12 @@ public class Level {
                 }
             }
         }
-    
+
     }
 
     private void nextWave() {
         Game.start_level = System.currentTimeMillis();
-        cash+=(100+(actual_vague+1));    
+        cash+=(100+(actual_vague+1));
         actual_vague++;
         enemy_spawn_index = 0;
     }
