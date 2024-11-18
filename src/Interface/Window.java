@@ -44,7 +44,7 @@ public class Window extends JFrame {
 
     public static boolean fullscreen = false;
 
-    public static boolean fenetrer_without_border = false;
+    public static boolean fenetrer_without_border = true;
 
     public static int divident_ts = 18;
 
@@ -216,6 +216,31 @@ public class Window extends JFrame {
 
     public static void drawString(String s, int size, int x, int y) {
         offscreen.setFont(offscreen.getFont().deriveFont(0, size));
+        offscreen.drawString(s, x, y);
+    }
+
+    public static void drawString(String s, int size, int x, int y, String c) {
+        offscreen.setColor(Color.decode(c));
+        offscreen.setFont(offscreen.getFont().deriveFont(0, size));
+        offscreen.drawString(s, x, y);
+    }
+
+    public static void drawString(String s, int size, int x, int y, String c, String over) {
+        offscreen.setFont(offscreen.getFont().deriveFont(0, size));
+
+        int over_size = size/16;
+
+        offscreen.setColor(Color.decode(over));
+        offscreen.drawString(s, x-over_size, y+over_size);
+        offscreen.setColor(Color.decode(over));
+        offscreen.drawString(s, x-over_size, y-over_size);
+        offscreen.setColor(Color.decode(over));
+        offscreen.drawString(s, x+over_size, y+over_size);
+        offscreen.setColor(Color.decode(over));
+        offscreen.drawString(s, x+over_size, y-over_size);
+
+
+        offscreen.setColor(Color.decode(c));
         offscreen.drawString(s, x, y);
     }
 

@@ -7,6 +7,8 @@ import Interface.Texture;
 import Interface.Window;
 import Map.Game;
 import Map.Element.Elementary;
+import Math.Direction;
+import Math.Even;
 import Math.Point;
 
 public class Tower extends Entity {
@@ -16,6 +18,14 @@ public class Tower extends Entity {
     private int damage;
     private long cooldown;
     private long last_atk_time = 0;
+    /*
+     * 0 => zone
+     * 1 => lastets
+     * 2 => first
+     * 3 => more resistant
+     * 4 => proche tower
+     */
+    private int mods = 0;
 
     /*
      * On donne la range en nombre de case
@@ -30,13 +40,14 @@ public class Tower extends Entity {
         this.damage = 0;
         this.level = 1;
         this.range = 0;
+        this.mods = 2;
     }
 
     /*
      * On donne la range en nombre de case
      * le cooldown en ms
      */
-    public Tower(int x, int y, String texture, Elementary element, int damage, double range, int cooldown) {
+    public Tower(int x, int y, String texture, Elementary element, int damage, double range, int cooldown, int mods) {
         super(x, y, texture, element);
         /*
          * 1c -> 1*Window.Ts
@@ -46,22 +57,208 @@ public class Tower extends Entity {
         this.damage = damage;
         this.level = 1;
         this.range = (int) (range * Window.Ts + (Window.Ts * 0.5));
+        this.mods = mods;
     }
 
-    public void attack(ArrayList<Mob> mobs) {
+    /**
+     * 0 => zone <br>
+     * 1 => lastets
+     * 2 => first
+     * 3 => more resistant
+     */
+    public int attack(ArrayList<Mob> mobs, ArrayList<Even<Point, Direction>> path) {
+        int cash = 0;
+        if (mobs.size() == 0) {
+            return 0;
+        }
         Iterator<Mob> m = mobs.iterator();
-        while (m.hasNext()) {
-            Mob entity = m.next();
-            if (isInRange(entity)) {
-                if (System.nanoTime() - last_atk_time >= cooldown) {
-                    this.dealDamage(entity);
-                    if(entity.dead()) {
-                        m.remove();
+        if (this.mods == 0) { // zone
+            while (m.hasNext()) {
+                Mob entity = m.next();
+                if (isInRange(entity)) {
+                    if (System.nanoTime() - last_atk_time >= cooldown) {
+                        this.dealDamage(entity);
+                        if (entity.dead()) {
+                            cash += entity.getCash();
+                            m.remove();
+                        }
+                        last_atk_time = System.nanoTime();
                     }
-                    last_atk_time = System.nanoTime();
                 }
             }
+        } else if (mods == 1) { // laster
+            if (System.nanoTime() - last_atk_time >= cooldown) {
+                ArrayList<Mob> inRange = new ArrayList<>();
+
+                for (Mob mob : mobs) {
+                    if (isInRange(mob)) {
+                        inRange.add(mob);
+                    }
+                }
+
+                if (inRange.size() == 0) {
+                    return 0;
+                }
+
+                ArrayList<Mob> path_equal = new ArrayList<>();
+                Mob less_path = inRange.get(0);
+                for (Mob mob : inRange) {
+                    if (mob.pathIndex() < less_path.pathIndex()) {
+                        less_path = mob;
+                        path_equal.clear();
+                        path_equal.add(mob);
+                    } else if (mob.pathIndex() == less_path.pathIndex()) {
+                        path_equal.add(mob);
+                    }
+                }
+
+                Mob less_distance_mob = path_equal.get(0);
+                Point source = path.get(less_distance_mob.pathIndex()).one;
+                for (Mob mob : path_equal) {
+                    if (distance(mob.x, mob.y, source.x, source.y) < distance(less_distance_mob.x, less_distance_mob.y,
+                            source.x, source.y)) {
+                        less_distance_mob = mob;
+                    }
+                }
+
+                this.dealDamage(less_distance_mob);
+                if (less_distance_mob.dead()) {
+                    cash += less_distance_mob.getCash();
+                    mobs.remove(less_distance_mob);
+                }
+                last_atk_time = System.nanoTime();
+
+            }
+
+        } else if (mods == 2) { //first
+
+            if (System.nanoTime() - last_atk_time >= cooldown) {
+                ArrayList<Mob> inRange = new ArrayList<>();
+
+                for (Mob mob : mobs) {
+                    if (isInRange(mob)) {
+                        inRange.add(mob);
+                    }
+                }
+
+                if (inRange.size() == 0) {
+                    return 0;
+                }
+
+                ArrayList<Mob> path_equal = new ArrayList<>();
+                Mob less_path = inRange.get(0);
+                for (Mob mob : inRange) {
+                    if (mob.pathIndex() > less_path.pathIndex()) {
+                        less_path = mob;
+                        path_equal.clear();
+                        path_equal.add(mob);
+                    } else if (mob.pathIndex() == less_path.pathIndex()) {
+                        path_equal.add(mob);
+                    }
+                }
+
+                Mob great_distance_mob = path_equal.get(0);
+                Point source = path.get(great_distance_mob.pathIndex()).one;
+                for (Mob mob : path_equal) {
+                    if (distance(mob.x, mob.y, source.x, source.y) > distance(great_distance_mob.x,
+                            great_distance_mob.y,
+                            source.x, source.y)) {
+                        great_distance_mob = mob;
+                    }
+                }
+
+                this.dealDamage(great_distance_mob);
+                if (great_distance_mob.dead()) {
+                    cash += great_distance_mob.getCash();
+                    mobs.remove(great_distance_mob);
+                }
+                last_atk_time = System.nanoTime();
+
+            }
+
+        } else if (mods == 3) { // more hp
+            if (System.nanoTime() - last_atk_time >= cooldown) {
+                ArrayList<Mob> inRange = new ArrayList<>();
+
+                for (Mob mob : mobs) {
+                    if (isInRange(mob)) {
+                        inRange.add(mob);
+                    }
+                }
+
+                if (inRange.size() == 0) {
+                    return 0;
+                }
+
+                ArrayList<Mob> hp_equal = new ArrayList<>();
+                Mob great_hp = inRange.get(0);
+                for (Mob mob : inRange) {
+                    if (mob.max_hp() > great_hp.max_hp()) {
+                        great_hp = mob;
+                        hp_equal.clear();
+                        hp_equal.add(mob);
+                    } else if (mob.max_hp() == great_hp.max_hp()) {
+                        hp_equal.add(mob);
+                    }
+                }
+
+                Mob less_distance_mob = hp_equal.get(0);
+                for (Mob mob : hp_equal) {
+                    if (distance(mob.getHixbot().x, mob.getHixbot().y, getHixbot().x, getHixbot().y) < distance(
+                            less_distance_mob.getHixbot().x, less_distance_mob.getHixbot().y,
+                            getHixbot().x, getHixbot().y)) {
+                        less_distance_mob = mob;
+                    }
+                }
+
+                this.dealDamage(less_distance_mob);
+                if (less_distance_mob.dead()) {
+                    cash += less_distance_mob.getCash();
+                    mobs.remove(less_distance_mob);
+                }
+                last_atk_time = System.nanoTime();
+
+            }
+
+        } else {
+            if (System.nanoTime() - last_atk_time >= cooldown) {
+                ArrayList<Mob> inRange = new ArrayList<>();
+
+                for (Mob mob : mobs) {
+                    if (isInRange(mob)) {
+                        inRange.add(mob);
+                    }
+                }
+
+                if (inRange.size() == 0) {
+                    return 0;
+                }
+
+                Mob less_distance_mob = inRange.get(0);
+                for (Mob mob : inRange) {
+                    if (distance(mob.getHixbot().x, mob.getHixbot().y, getHixbot().x, getHixbot().y) < distance(
+                            less_distance_mob.getHixbot().x, less_distance_mob.getHixbot().y,
+                            getHixbot().x, getHixbot().y)) {
+                        less_distance_mob = mob;
+                    }
+                }
+
+                this.dealDamage(less_distance_mob);
+                if (less_distance_mob.dead()) {
+                    cash += less_distance_mob.getCash();
+                    mobs.remove(less_distance_mob);
+                }
+                last_atk_time = System.nanoTime();
+
+            }
+
         }
+        return cash;
+    }
+
+    private int distance(int x_d, int y_d, int x_s, int y_s) {
+        int distance = (int) Math.sqrt((Math.pow((x_d - x_s), 2) + Math.pow((y_d - y_s), 2)));
+        return distance;
     }
 
     public Point getHixbot() {
@@ -72,13 +269,12 @@ public class Tower extends Entity {
         return this.range;
     }
 
-    public boolean isInRange(Mob m) {
+    private boolean isInRange(Mob m) {
         /*
          * si d > r1 + r2 = se touche pas
          * si d <= r1 + r2 = se touche
          */
-        int d = (int) Math.sqrt((Math.pow((m.getHixbot().x - this.getHixbot().x), 2)
-                + Math.pow((m.getHixbot().y - this.getHixbot().y), 2)));
+        int d = distance(m.getHixbot().x, m.getHixbot().y, this.getHixbot().x, this.getHixbot().y);
         return d <= (this.range + m.rayon_hitbox());
 
     }

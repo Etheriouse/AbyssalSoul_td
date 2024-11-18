@@ -15,13 +15,19 @@ import Interface.Texture;
 import Interface.Window;
 import Map.Element.Elementary;
 import Math.Point;
+import Math.Direction;
+import Math.Even;
 
 public class Level {
 
     private int level;
 
-    private int wave;
-    private int actual_vague = 54;
+    private int wave = Game.maxWave;
+    private int actual_vague = 2;
+
+    @SuppressWarnings("unchecked")
+    private Even<Integer, String> waves[][] = new Even[Game.maxWave][];
+    private int enemy_spawn_index = 0;
 
     private ArrayList<Even<Point, Direction>> path = new ArrayList<>();
     private Point start;
@@ -29,7 +35,7 @@ public class Level {
     private ArrayList<Tower> tower = new ArrayList<>();
     private ArrayList<Mob> mob = new ArrayList<>();
 
-    private Mob waves[][] = new Mob[wave][];
+    private int cash = 350;
 
     private int type_entry;
 
@@ -47,9 +53,10 @@ public class Level {
 
     public Level(String path) {
         decompile_from_file(path);
-        int x_offset = (int) Math.round((Window.width * 0.052083) / 10.0f) * 10;
-        mob.add(new Mob(20, 20, x_offset + (start.x * Window.Ts), start.y * Window.Ts, "bloon", Elementary.Air, 2, 20, 0.4));
-        tower.add(new Tower(x_offset + 14*Window.Ts, 14*Window.Ts, "rune_crystal", Elementary.Rune, 10, 1.75, 500));
+        fillWave();
+        tower.add(new Tower(Window.x_offset + 8*Window.Ts, 14*Window.Ts, "rune_crystal", Elementary.Rune, 10, 1.75, 700, 4));
+        //tower.add(new Tower(Window.x_offset + 14*Window.Ts, 14*Window.Ts, "rune_crystal", Elementary.Rune, 10, 1.75, 700, 1));
+        
         this.level = 1;
     }
 
@@ -125,6 +132,53 @@ public class Level {
         }
         start = path.get(0).one;
         this.path.add(new Even(this.end, Direction.null_));
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private void fillWave() {
+        try {
+            for(int i = 0; i<Game.maxWave; i++) {
+                BufferedReader file_ = new BufferedReader(new FileReader("assets/level/wave/wave"+(i+1)+".w"));
+                String line;
+                ArrayList<String> list_name = new ArrayList<>();
+                ArrayList<Integer> list_time = new ArrayList<>();
+
+                while((line = file_.readLine()) != null) {
+                    String content[] = split(line, "|");
+                    int time = (int) (Double.parseDouble(content[0])*1_000);
+                    list_time.add(time);
+                    list_name.add(content[1]);
+                }
+
+                String names[] = convertToArrayS(list_name);
+                Integer times[] = convertToArrayI(list_time);
+
+                waves[i] = new Even[names.length];
+                for(int y = 0; y<names.length; y++) {
+                    waves[i][y] = new Even(times[y], names[y]);
+                }
+                file_.close();
+            }
+        } catch (IOException e) {
+            System.out.println(e);
+            return;
+        }
+    }
+
+    private String[] convertToArrayS(ArrayList<String> list) {
+        String array[] = new String[list.size()];
+        for(int i = 0; i<array.length; i++) {
+            array[i] = list.get(i);
+        }
+        return array;
+    }
+
+    private Integer[] convertToArrayI(ArrayList<Integer> list) {
+        Integer array[] = new Integer[list.size()];
+        for(int i = 0; i<array.length; i++) {
+            array[i] = list.get(i);
+        }
+        return array;
     }
 
     private String[] split(String s, String regex) {
@@ -382,12 +436,20 @@ public class Level {
             entity.print();
         }
 
-        Window.drawString("wave", 40, size_game_x-Window.x_offset, 40);
-        Window.drawString(""+actual_vague, 40, size_game_x-Window.x_offset, 80);
+        Window.drawString("wave", 40, size_game_x-Window.x_offset+210, 40, "#FFFFFF", "#000000");
+        Window.drawString(""+(actual_vague+1), 40, size_game_x-Window.x_offset, 80);
 
 
         Window.drawString("level", 40, size_game_x-Window.x_offset, 120);
         Window.drawString(""+this.level, 40, size_game_x-Window.x_offset, 160);
+
+        Window.drawString("cash", 40, size_game_x-Window.x_offset, 200);
+        Window.drawString(""+this.cash, 40, size_game_x-Window.x_offset, 240);
+    
+        Window.drawString("life", 40, size_game_x-Window.x_offset, 280);
+        Window.drawString(""+this.life, 40, size_game_x-Window.x_offset, 320);
+    
+
     }
 
     public void process() {
@@ -412,38 +474,37 @@ public class Level {
         }
 
         for (Tower tower : tower) {
-            tower.attack(mob);
+            cash+=tower.attack(mob, path);
         }
+        
+        if(actual_vague == waves.length) {
+           System.out.println("level finish, todo next");
+        } else {
+            if(enemy_spawn_index == waves[actual_vague].length) {
+                nextWave();
+            } else {
+                if(System.currentTimeMillis()-Game.start_level > waves[actual_vague][enemy_spawn_index].one) {
+                    spawnMob(waves[actual_vague][enemy_spawn_index].two);
+                    enemy_spawn_index++;
+                    System.out.println(enemy_spawn_index);
+                }
+            }
+        }
+    
     }
 
-    public void spawnMob() {
-
+    private void nextWave() {
+        Game.start_level = System.currentTimeMillis();
+        cash+=(100+(actual_vague+1));    
+        actual_vague++;
+        enemy_spawn_index = 0;
     }
 
-}
-
-class Even<T, V> {
-    T one;
-    V two;
-
-    public Even(T one, V two) {
-        this.one = one;
-        this.two = two;
+    private void spawnMob(String type) {
+        Mob new_entity = Mob.getMobwithType(type);
+        new_entity.setx(Window.x_offset + (start.x * Window.Ts));
+        new_entity.sety(start.y * Window.Ts);
+        mob.add(new_entity);
     }
-}
 
-enum Direction {
-    right(1, 0),
-    left(-1, 0),
-    up(0, -1),
-    down(0, 1),
-    null_(0, 0);
-
-    public int x;
-    public int y;
-
-    Direction(int x, int y) {
-        this.x = x;
-        this.y = y;
-    }
 }
