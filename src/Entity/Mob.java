@@ -12,8 +12,7 @@ public class Mob extends Entity {
     private int hp;
 
     private int index_path;
-
-    private int speed;
+    private int speed_move;
     private int damage;
     private int rayon_hitbox;
 
@@ -22,7 +21,7 @@ public class Mob extends Entity {
         this.max_hp = 100;
         this.hp = 100;
         this.index_path = 0;
-        this.speed = -1;
+        this.speed_move = -1;
         this.damage = 0;
     }
 
@@ -31,7 +30,7 @@ public class Mob extends Entity {
         this.max_hp = max;
         this.hp = hp;
         this.index_path = 0;
-        this.speed = -1;
+        this.speed_move = -1;
         this.damage = 0;
     }
 
@@ -43,15 +42,32 @@ public class Mob extends Entity {
         this.max_hp = max;
         this.hp = max;
         this.index_path = 0;
-        this.speed = speed;
+        this.speed_move = speed;
         this.damage = damage;
         this.rayon_hitbox = (int) (rayon_hitbox * Window.Ts);
     }
 
-    public void takedamage(double n) {
+    public void takedamage(double n, int effect_tower[][]) {
         this.hp -= n;
         if (this.hp < 0) {
             this.hp = 0;
+        }
+        for(int i = 0; i<effect_tower.length; i++) {
+            if(effect_tower[i][0] != 0) {
+                this.effect[i][0] = 1;
+                this.effect[i][1] = (int) Game.ticks_process+effect_tower[i][1];
+            }
+        }
+    }
+
+    public void clearEffect() {
+        for (int[] is : effect) {
+            if(is[0] != 0) {
+                if(is[1] == Game.ticks_process) {
+                    is[1] = 0;
+                    is[0] = 0;
+                }
+            }
         }
     }
 
@@ -88,6 +104,20 @@ public class Mob extends Entity {
     }
 
     public void forward(Point source, Point destination) {
+        int speed = this.speed_move;
+        if(this.effect[1][0] != 0) {
+            speed = 0;
+        } else if(this.effect[0][0] != 0) {
+            speed/=2;
+        }
+        if(this.effect[1][0] != 0) {
+            if(Game.ticks_process%40 == 0 || Game.ticks_process%41 == 0) {
+                this.hp-=1;
+                if(this.hp < 0) {
+                    this.hp = 0;
+                }
+            }
+        }
         if (source.x == destination.x) {
             if (destination.y - source.y > 0) {
                 y += speed;
@@ -211,7 +241,7 @@ public class Mob extends Entity {
          */
         switch (type) {
             case "bloon":
-                return new Mob(1, 0, 0, "bloon", Elementary.Air, 3, 1, 0.4);
+                return new Mob(10, 0, 0, "bloon", Elementary.Air, 3, 1, 0.4);
 
             case "minigolem":
                 return new Mob(2, 0, 0, "minigolem", Elementary.Earth, 4, 2, 0.4);

@@ -52,7 +52,10 @@ public class Level {
     public Level(String path) {
         decompile_from_file(path);
         fillWave();
-        tower.add(new Tower(Window.x_offset + 8*Window.Ts, 14*Window.Ts, "rune_crystal", Elementary.Rune, 1, 1.75, 700, 4));
+        Tower t = new Tower(Window.x_offset + 8*Window.Ts, 14*Window.Ts, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 500, 0);
+        t.setEffect(new int[][]{{0, 80}, {0, 80}, {0, 0}});
+        tower.add(t);
+        
         //tower.add(new Tower(Window.x_offset + 14*Window.Ts, 14*Window.Ts, "rune_crystal", Elementary.Rune, 10, 1.75, 700, 1));
 
         this.level = 1;
@@ -458,6 +461,7 @@ public class Level {
         Iterator<Mob> m = mob.iterator();
         while (m.hasNext()) {
             Mob entity = m.next();
+            entity.clearEffect(); // clear les effet si durer terminer
             if (Window.isOnCase_p(entity.x(), entity.y(), end.x*Window.Ts, end.y*Window.Ts)) {
                 this.life-=entity.damage();
                 if(this.life <= 0) {
@@ -487,14 +491,18 @@ public class Level {
                     nextWave();
                 }
             } else {
-                if(System.currentTimeMillis()-Game.start_level > waves[actual_vague][enemy_spawn_index].one) {
+                if(Game.convertTickToMs(Game.ticks_process) > waves[actual_vague][enemy_spawn_index].one ) {
                     spawnMob(waves[actual_vague][enemy_spawn_index].two);
                     enemy_spawn_index++;
                     System.out.println(enemy_spawn_index);
+                
                 }
             }
         }
+    }    
 
+    public void addTower(Tower t) {
+        tower.add(t);
     }
 
     private void nextWave() {
@@ -502,6 +510,10 @@ public class Level {
         cash+=(100+(actual_vague+1));
         actual_vague++;
         enemy_spawn_index = 0;
+        Game.ticks_process = 0;
+        for (Tower tow : tower) {
+            tow.resetcooldown();
+        }
     }
 
     private void spawnMob(String type) {

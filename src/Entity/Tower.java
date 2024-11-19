@@ -3,6 +3,9 @@ package Entity;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+
+import java.awt.Image;
+
 import Interface.Texture;
 import Interface.Window;
 import Map.Game;
@@ -16,8 +19,12 @@ public class Tower extends Entity {
     private int range;
     private int level;
     private int damage;
-    private long cooldown;
+    private int cooldown;
     private long last_atk_time = 0;
+    private String texture_sprite;
+
+    
+
     /*
      * 0 => zone
      * 1 => lastets
@@ -27,12 +34,15 @@ public class Tower extends Entity {
      */
     private int mods = 0;
 
+    private int tick_sprite_animation = 15;
+
     /*
      * On donne la range en nombre de case
      */
     public Tower() {
         super();
         this.texture = "none";
+        this.texture_sprite = "none";
         this.x = 0;
         this.y = 0;
         this.type = Elementary.null_;
@@ -47,13 +57,14 @@ public class Tower extends Entity {
      * On donne la range en nombre de case
      * le cooldown en ms
      */
-    public Tower(int x, int y, String texture, Elementary element, int damage, double range, int cooldown, int mods) {
+    public Tower(int x, int y, String texture, String texture_srite, Elementary element, int damage, double range, int cooldown, int mods) {
         super(x, y, texture, element);
+        this.texture_sprite = texture_srite;
         /*
          * 1c -> 1*Window.Ts
          * 45c -> 45*Window.Ts
          */
-        this.cooldown = cooldown * 1_000_000;
+        this.cooldown = (int) Game.convertMsToTick((long) cooldown);
         this.damage = damage;
         this.level = 1;
         this.range = (int) (range * Window.Ts + (Window.Ts * 0.5));
@@ -76,18 +87,19 @@ public class Tower extends Entity {
             while (m.hasNext()) {
                 Mob entity = m.next();
                 if (isInRange(entity)) {
-                    if (System.nanoTime() - last_atk_time >= getcouldown()) {
+                    if (canAtk()) {
                         this.dealDamage(entity);
                         if (entity.dead()) {
                             cash += entity.getCash();
                             m.remove();
                         }
-                        last_atk_time = System.nanoTime();
+
+                        last_atk_time = Game.ticks_process;
                     }
                 }
             }
         } else if (mods == 1) { // laster
-            if (System.nanoTime() - last_atk_time >= getcouldown()) {
+            if (canAtk()) {
                 ArrayList<Mob> inRange = new ArrayList<>();
 
                 for (Mob mob : mobs) {
@@ -126,13 +138,13 @@ public class Tower extends Entity {
                     cash += less_distance_mob.getCash();
                     mobs.remove(less_distance_mob);
                 }
-                last_atk_time = System.nanoTime();
+                last_atk_time = Game.ticks_process;
 
             }
 
-        } else if (mods == 2) { //first
+        } else if (mods == 2) { // first
 
-            if (System.nanoTime() - last_atk_time >= getcouldown()) {
+            if (canAtk()) {
                 ArrayList<Mob> inRange = new ArrayList<>();
 
                 for (Mob mob : mobs) {
@@ -172,12 +184,13 @@ public class Tower extends Entity {
                     cash += great_distance_mob.getCash();
                     mobs.remove(great_distance_mob);
                 }
-                last_atk_time = System.nanoTime();
+
+                last_atk_time = Game.ticks_process;
 
             }
 
         } else if (mods == 3) { // more hp
-            if (System.nanoTime() - last_atk_time >= getcouldown()) {
+            if (canAtk()) {
                 ArrayList<Mob> inRange = new ArrayList<>();
 
                 for (Mob mob : mobs) {
@@ -216,12 +229,13 @@ public class Tower extends Entity {
                     cash += less_distance_mob.getCash();
                     mobs.remove(less_distance_mob);
                 }
-                last_atk_time = System.nanoTime();
+
+                last_atk_time = Game.ticks_process;
 
             }
 
         } else {
-            if (System.nanoTime() - last_atk_time >= getcouldown()) {
+            if (canAtk()) {
                 ArrayList<Mob> inRange = new ArrayList<>();
 
                 for (Mob mob : mobs) {
@@ -248,7 +262,8 @@ public class Tower extends Entity {
                     cash += less_distance_mob.getCash();
                     mobs.remove(less_distance_mob);
                 }
-                last_atk_time = System.nanoTime();
+
+                last_atk_time = Game.ticks_process;
 
             }
 
@@ -256,13 +271,21 @@ public class Tower extends Entity {
         return cash;
     }
 
-    public long getcouldown() {
-        return this.cooldown;
+    private boolean canAtk() {
+        return Game.ticks_process - last_atk_time > cooldown;
+    }
+
+    public void resetcooldown() {
+        this.last_atk_time = 0;
     }
 
     private int distance(int x_d, int y_d, int x_s, int y_s) {
         int distance = (int) Math.sqrt((Math.pow((x_d - x_s), 2) + Math.pow((y_d - y_s), 2)));
         return distance;
+    }
+
+    public void setEffect(int effect[][]) {
+        this.effect = effect;
     }
 
     public Point getHixbot() {
@@ -290,17 +313,26 @@ public class Tower extends Entity {
      */
     private void dealDamage(Mob m) {
         if (Elementary.eff(this.type)[1] == m.type || Elementary.eff(this.type)[1] == m.type) {
-            m.takedamage((damage * level) * 1.5);
+            m.takedamage((damage * level) * 1.5, this.effect);
         } else if (Elementary.weakness(this.type)[1] == m.type || Elementary.weakness(this.type)[1] == m.type) {
-            m.takedamage((damage * level) * 0.5);
+            m.takedamage((damage * level) * 0.5, this.effect);
         } else {
-            m.takedamage((damage * level) * 1);
+            m.takedamage((damage * level) * 1, this.effect);
+        }
+    }
+
+    @Override
+    public Image getTexture() {
+        if(Game.ticks_process - last_atk_time >= tick_sprite_animation) {
+            return Texture.textures_entity.get(this.texture);
+        } else {
+            return Texture.textures_entity.get(this.texture_sprite);
         }
     }
 
     public void print() {
-        Window.drawTexture(this.x, this.y, Window.Ts, Window.Ts, this.getTexture());
         int size = this.range() * 2;
+            Window.drawTexture(this.x, this.y, Window.Ts, Window.Ts, this.getTexture());
         if (Game.show_hitbox) {
             Window.drawTexture(this.getHixbot().x - this.range(), this.getHixbot().y - this.range(), size, size,
                     Texture.range_texture);

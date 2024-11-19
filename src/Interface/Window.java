@@ -43,7 +43,7 @@ public class Window extends JFrame {
 
     public static boolean fullscreen = false;
 
-    public static boolean fenetrer_without_border = true;
+    public static boolean fenetrer_without_border = false;
 
     public static int divident_ts = 18;
 
@@ -170,6 +170,7 @@ public class Window extends JFrame {
         });
 
         cooldown.put(KeyEvent.VK_SPACE, System.currentTimeMillis());
+        cooldown.put(KeyEvent.VK_ESCAPE, System.currentTimeMillis());
 
         File ancien_font = new File("assets/font/ancien.ttf");
         try {

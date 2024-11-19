@@ -14,6 +14,17 @@ public abstract class Entity {
     protected String texture;
     protected Elementary type;
 
+    /*
+     * 0 => air ( glue ) speed/2
+     * 1 => rune ( freeze ) speed = 0
+     * 2 => fire ( poison ) healt -= 1/s
+     * 
+     * [] => type effect
+     *  [] => time of effect in t for tower
+     *  [] => tick of start of effect for mob
+     */
+    protected int effect[][] = new int[3][2];
+
 
     public Entity() {
         this.x = 0;

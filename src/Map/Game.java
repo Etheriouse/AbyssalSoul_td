@@ -1,5 +1,7 @@
 package Map;
 
+import java.awt.event.KeyEvent;
+
 import Interface.Window;
 
 public class Game {
@@ -8,16 +10,18 @@ public class Game {
     int level_actual = 0;
 
     public final int max_level = 10;
-    public int fps = 120;
-    public final int init_tick = 30;
-    public int tick = init_tick; // tick 30 rate normally
-    public static int speed_up = 4;
+    public int fps = 60;
+    public static final int init_tick = 40;
+    public int tick = init_tick; // tick 40 rate normally
 
     public static final int maxWave = 6;
 
     public static boolean show_hitbox = true;
 
+    public static boolean speed = false;
+
     public static long start_level;
+    public static long ticks_process;
 
     public Game() {
 
@@ -50,24 +54,40 @@ public class Game {
 
         start_level = System.currentTimeMillis();
 
+        boolean pause = false;
+        ticks_process = 0;
 
         while (!isFailed()) {
-            /**
-             *
-             * if (Window.keysDown.contains(KeyEvent.VK_SPACE)) {
-             * if (Window.cooldown(KeyEvent.VK_SPACE)) {
-             * Window.resetcooldown(KeyEvent.VK_SPACE);
-             * pause = !pause;
-             * }
-             *
-             * }
-             *
-             */
+
+            if (Window.keysDown.contains(KeyEvent.VK_SPACE)) { // x2 game
+                if (Window.cooldown(KeyEvent.VK_SPACE)) {
+                    Window.resetcooldown(KeyEvent.VK_SPACE);
+                    speed = !speed;
+                }
+
+            }
+
+            if (Window.keysDown.contains(KeyEvent.VK_ESCAPE)) { // pause game
+                if (Window.cooldown(KeyEvent.VK_ESCAPE)) {
+                    Window.resetcooldown(KeyEvent.VK_ESCAPE);
+                    pause = !pause;
+                }
+
+            }
+
             now = System.nanoTime();
+            if(!speed) {
+                duration_tick = 1_000_000_000 / tick;
+            } else {
+                duration_tick = 1_000_000_000 / (tick*2);
+            }
 
             if (now - tick_time > duration_tick) {
-                process();
-                ticks++;
+                if(!pause) {
+                    process();
+                    ticks++;
+                    ticks_process++;
+                }
                 tick_time += duration_tick;
             }
 
@@ -90,6 +110,26 @@ public class Game {
             Window.refresh();
 
         }
+    }
+
+    public static long convertTickToMs(Long tick) {
+        /*
+         * 40 = tick from Game
+         * 40t => 1000ms
+         * 1t => 25ms
+         * nt => (n*1000/40)
+         */
+        return (tick * 1000) / Game.init_tick;
+    }
+
+    public static long convertMsToTick(Long ms) {
+        /*
+         * 40 = tick from Game
+         * 40t => 1000ms
+         * 1t => 25ms
+         * nt => (n*1000/40)
+         */
+        return (ms * Game.init_tick) / 1000;
     }
 
     public boolean isFailed() {
