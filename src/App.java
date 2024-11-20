@@ -9,6 +9,14 @@ public class App {
         for(int i = 0; i<s.length(); i++) {
             //System.out.println((int)(s.charAt(i)));
         }
+        // eSN
+        double t = .10e5;
+        switch (s) {
+            default:
+                break;
+        }
         Window.GetNewInstance().run();
+
+
     }
 }

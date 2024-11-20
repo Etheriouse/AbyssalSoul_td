@@ -10,9 +10,11 @@ import Interface.Texture;
 import Interface.Window;
 import Map.Game;
 import Map.Element.Elementary;
+import Map.Element.TargetSet;
 import Math.Direction;
 import Math.Even;
 import Math.Point;
+import Math.math;
 
 public class Tower extends Entity {
 
@@ -21,9 +23,11 @@ public class Tower extends Entity {
     private int damage;
     private int cooldown;
     private long last_atk_time = 0;
-    private String texture_sprite;
 
-    
+    private String texture_sprite;
+    private int nb_sprit_anim;
+    private int counter_sprite = 0;
+
 
     /*
      * 0 => zone
@@ -32,9 +36,9 @@ public class Tower extends Entity {
      * 3 => more resistant
      * 4 => proche tower
      */
-    private int mods = 0;
+    private TargetSet target;
 
-    private int tick_sprite_animation = 15;
+    private int tick_sprite_animation = 10;
 
     /*
      * On donne la range en nombre de case
@@ -50,14 +54,14 @@ public class Tower extends Entity {
         this.damage = 0;
         this.level = 1;
         this.range = 0;
-        this.mods = 2;
+        this.target = TargetSet.first;
     }
 
     /*
      * On donne la range en nombre de case
      * le cooldown en ms
      */
-    public Tower(int x, int y, String texture, String texture_srite, Elementary element, int damage, double range, int cooldown, int mods) {
+    public Tower(int x, int y, String texture, String texture_srite, Elementary element, int damage, double range, int cooldown, TargetSet mods, int nb_sprit_anim) {
         super(x, y, texture, element);
         this.texture_sprite = texture_srite;
         /*
@@ -68,7 +72,8 @@ public class Tower extends Entity {
         this.damage = damage;
         this.level = 1;
         this.range = (int) (range * Window.Ts + (Window.Ts * 0.5));
-        this.mods = mods;
+        this.target = mods;
+        this.nb_sprit_anim = nb_sprit_anim;
     }
 
     /**
@@ -83,22 +88,25 @@ public class Tower extends Entity {
             return 0;
         }
         Iterator<Mob> m = mobs.iterator();
-        if (this.mods == 0) { // zone
+        boolean has_atk = false;
+        if (this.target == TargetSet.zone) { // zone
             while (m.hasNext()) {
                 Mob entity = m.next();
                 if (isInRange(entity)) {
                     if (canAtk()) {
                         this.dealDamage(entity);
+                        has_atk = true;
                         if (entity.dead()) {
                             cash += entity.getCash();
                             m.remove();
                         }
-
-                        last_atk_time = Game.ticks_process;
                     }
                 }
             }
-        } else if (mods == 1) { // laster
+            if(has_atk) {
+                last_atk_time = Game.ticks_process;
+            }
+        } else if (target == TargetSet.last) { // laster
             if (canAtk()) {
                 ArrayList<Mob> inRange = new ArrayList<>();
 
@@ -142,7 +150,7 @@ public class Tower extends Entity {
 
             }
 
-        } else if (mods == 2) { // first
+        } else if (target == TargetSet.first) { // first
 
             if (canAtk()) {
                 ArrayList<Mob> inRange = new ArrayList<>();
@@ -189,7 +197,7 @@ public class Tower extends Entity {
 
             }
 
-        } else if (mods == 3) { // more hp
+        } else if (target == TargetSet.strong) { // more hp
             if (canAtk()) {
                 ArrayList<Mob> inRange = new ArrayList<>();
 
@@ -234,7 +242,7 @@ public class Tower extends Entity {
 
             }
 
-        } else {
+        } else if(this.target == TargetSet.close) { // TargetSet.close
             if (canAtk()) {
                 ArrayList<Mob> inRange = new ArrayList<>();
 
@@ -323,10 +331,12 @@ public class Tower extends Entity {
 
     @Override
     public Image getTexture() {
-        if(Game.ticks_process - last_atk_time >= tick_sprite_animation) {
+        if(Game.ticks_process - last_atk_time >= tick_sprite_animation || Game.ticks_process <= 40) {
+            counter_sprite = 0;
             return Texture.textures_entity.get(this.texture);
         } else {
-            return Texture.textures_entity.get(this.texture_sprite);
+            int sprite = (int) ((Game.ticks_process-last_atk_time)%(nb_sprit_anim*2)) + 1;
+            return Texture.textures_entity.get(this.texture_sprite+sprite);
         }
     }
 

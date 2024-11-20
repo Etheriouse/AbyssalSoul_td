@@ -11,6 +11,7 @@ import Entity.Tower;
 import Interface.Texture;
 import Interface.Window;
 import Map.Element.Elementary;
+import Map.Element.TargetSet;
 import Math.Point;
 import Math.Direction;
 import Math.Even;
@@ -52,10 +53,18 @@ public class Level {
     public Level(String path) {
         decompile_from_file(path);
         fillWave();
-        Tower t = new Tower(Window.x_offset + 8*Window.Ts, 14*Window.Ts, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 500, 0);
-        t.setEffect(new int[][]{{0, 80}, {0, 80}, {0, 0}});
-        tower.add(t);
-        
+        Tower fire = new Tower(Window.x_offset + 14*Window.Ts, 8*Window.Ts, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 2000, TargetSet.close, 5);
+        fire.setEffect(new int[][]{{0, 80}, {0, 20}, {1, 40*5}});
+
+        Tower ice = new Tower(Window.x_offset + 8*Window.Ts, 14*Window.Ts, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 2000, TargetSet.last, 5);
+        ice.setEffect(new int[][]{{0, 80}, {1, 20}, {1, 0}});
+
+        Tower venti = new Tower(Window.x_offset + 18*Window.Ts, 14*Window.Ts, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 2000, TargetSet.first, 5);
+        venti.setEffect(new int[][]{{1, 400}, {0, 20}, {0, 0}});
+        tower.add(venti);
+        tower.add(ice);
+        tower.add(fire);
+
         //tower.add(new Tower(Window.x_offset + 14*Window.Ts, 14*Window.Ts, "rune_crystal", Elementary.Rune, 10, 1.75, 700, 1));
 
         this.level = 1;
@@ -457,6 +466,11 @@ public class Level {
     }
 
     public void process() {
+
+        for (Tower tower : tower) {
+            cash+=tower.attack(mob, path);
+        }
+
         int path_ = 0;
         Iterator<Mob> m = mob.iterator();
         while (m.hasNext()) {
@@ -465,9 +479,14 @@ public class Level {
             if (Window.isOnCase_p(entity.x(), entity.y(), end.x*Window.Ts, end.y*Window.Ts)) {
                 this.life-=entity.damage();
                 if(this.life <= 0) {
-                    System.out.println(life);
+                    //System.out.println(life);
                     this.failed = true;
                 }
+                m.remove();
+                continue;
+            }
+
+            if(entity.dead()) {
                 m.remove();
                 continue;
             }
@@ -476,10 +495,6 @@ public class Level {
             if (!(path_ + 1 == path.size())) {
                 entity.forward(this.path.get(path_).one, this.path.get(path_ + 1).one);
             }
-        }
-
-        for (Tower tower : tower) {
-            cash+=tower.attack(mob, path);
         }
 
         if(actual_vague == waves.length) {
@@ -494,12 +509,12 @@ public class Level {
                 if(Game.convertTickToMs(Game.ticks_process) > waves[actual_vague][enemy_spawn_index].one ) {
                     spawnMob(waves[actual_vague][enemy_spawn_index].two);
                     enemy_spawn_index++;
-                    System.out.println(enemy_spawn_index);
-                
+                    //System.out.println(enemy_spawn_index);
+
                 }
             }
         }
-    }    
+    }
 
     public void addTower(Tower t) {
         tower.add(t);

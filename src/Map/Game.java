@@ -2,6 +2,7 @@ package Map;
 
 import java.awt.event.KeyEvent;
 
+import Interface.Texture;
 import Interface.Window;
 
 public class Game {
@@ -16,7 +17,7 @@ public class Game {
 
     public static final int maxWave = 6;
 
-    public static boolean show_hitbox = true;
+    public static boolean show_hitbox = false;
 
     public static boolean speed = false;
 
@@ -24,7 +25,7 @@ public class Game {
     public static long ticks_process;
 
     public Game() {
-
+        Texture.setupTexture();
     }
 
     private Level[] init_levels() {
