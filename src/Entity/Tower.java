@@ -75,6 +75,17 @@ public class Tower extends Entity {
         this.nb_sprit_anim = nb_sprit_anim;
     }
 
+    private Tower(int x, int y, String texture, String texture_srite, Elementary element, int damage, int range, int cooldown, TargetSet mods, int nb_sprit_anim) {
+        super(x, y, texture, element);
+        this.texture_sprite = texture_srite;
+        this.cooldown = cooldown;
+        this.damage = damage;
+        this.level = 1;
+        this.range = range;
+        this.target = mods;
+        this.nb_sprit_anim = nb_sprit_anim;
+    }
+
     /**
      * 0 => zone <br>
      * 1 => lastets
@@ -358,20 +369,20 @@ public class Tower extends Entity {
 
         Tower venti = new Tower(Window.x_offset + 18*Window.Ts, 14*Window.Ts, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 2000, TargetSet.first, 5);
         venti.setEffect(new int[][]{{1, 400}, {0, 20}, {0, 0}});
-        
+
         Tower venti = new Tower(0, 0, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 2000, TargetSet.first, 5);
-        
+
      */
 
     public static Tower towers[][] = {
-            { 
+            {
                 new Tower(0, 0, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 1000, TargetSet.first, 5),
                 new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
                 new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
-                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
+                new Tower(0, 0, "care", null, Elementary.Rune, 1, 1.75, 1000, TargetSet.first, 1),
                 new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0)
             },
-            { 
+            {
                 new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
                 new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
                 new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
@@ -381,7 +392,11 @@ public class Tower extends Entity {
     };
 
     public Tower copy() {
-        return new Tower(this.x, this.y, this.texture, this.texture_sprite, this.type, this.damage, ((this.range-(Window.Ts*0.5))/Window.Ts),
-                this.cooldown, this.target, this.nb_sprit_anim);
+        return new Tower(x, y, texture, texture_sprite, type, damage, range, cooldown, target, nb_sprit_anim);
+    }
+
+    @Override
+    public String toString() {
+        return this.texture;
     }
 }

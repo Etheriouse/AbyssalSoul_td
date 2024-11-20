@@ -20,7 +20,7 @@ public class Game {
 
     public static int size_game_y = Window.height; // ratio = 1.38
     public static int size_game_x = (int) Math.round((size_game_y * 1.38888888888) / 10.0f) * 10;
-    public static int side_buy = (int) (0.08 * (Window.Ts * 2.5 * 2));
+    public static int side_buy = (int) (0.075 * (Window.Ts * 2.5 * 2));
 
     public static final int maxWave = 6;
 
@@ -93,22 +93,29 @@ public class Game {
             if (Window.Click) {
                 if (Window.cooldown(MouseEvent.BUTTON1)) {
                     Window.resetcooldown(MouseEvent.BUTTON1);
-                    if (Window.xMouse > Window.x_offset && Window.xMouse < size_game_x) {
-                        // System.out.println("in place zone");
+                    if (Window.xMouse > Window.x_offset && Window.xMouse < Window.x_offset+size_game_x) {
+                        //System.out.println("in place zone");
                         if (select) {
                             // System.out.println("placed");
                             select = false;
                             place = true;
                         }
-                    } else if (Window.xMouse >= size_game_x
-                            && Window.xMouse <= size_game_x + Window.Ts * 2 * 2.5) {
-                        // System.out.println("x valid");
+                    } else if (
+                        Window.xMouse > size_game_x+Window.x_offset &&
+                        Window.xMouse < size_game_x+Window.x_offset + (Window.Ts * 2 * 2.5)
+                        ) {
+                        //System.out.println("x valid");
                         if (Window.yMouse > Window.height * 0.22
                                 && Window.yMouse < (Window.height * 0.22 + Window.Ts * 2.5 * 5)) {
-                            // System.out.println("in zone");
+                             //System.out.println("in zone");
                             select = !select;
-                            wich_tower.x = (((int) ((Window.xMouse-Window.x_offset)/(Window.Ts*2.6))) -9);
-                            wich_tower.y = ((int) ((Window.yMouse-Window.height * 0.22)/(Window.Ts*2.5)));
+                            wich_tower.x = (((int) ((Window.xMouse) / (Window.Ts * 2.6))) - 10);
+                            wich_tower.y = ((int) ((Window.yMouse - Window.height * 0.22) / (Window.Ts * 2.5)));
+                            System.out.println(wich_tower.x + " ; " + wich_tower.y);
+                            System.out.println(Tower.towers[wich_tower.x][wich_tower.y]);
+                            if(Tower.towers[wich_tower.x][wich_tower.y].getTexture().equals(Texture.textures_entity.get("none"))) {
+                                select = false;
+                            }
                         }
                     }
                     // System.out.println("x: " + Window.xMouse + " y: " + Window.yMouse);
@@ -121,6 +128,15 @@ public class Game {
             // (size_game_x + Window.Ts * 2 * 2.5) + "]");
             // System.out.println("doit etre entre y : ["+ (Window.height * 0.22) + " et " +
             // (Window.height * 0.22 + Window.Ts * 2.5 * 4.75) + "]");
+
+            if (select) {
+                /*
+                 * t.setx(Window.xMouse-(Window.Ts/4));
+                 * t.sety(Window.yMouse-(Window.Ts/2));
+                 */
+                Window.drawTexture(Window.xMouse-(Window.Ts/2), Window.yMouse-(Window.Ts/2), Window.Ts, Window.Ts,
+                        Tower.towers[wich_tower.x][wich_tower.y].getTexture());
+            }
 
             if (place) {
                 addTower(wich_tower.x, wich_tower.y);
@@ -162,10 +178,10 @@ public class Game {
                 Window.drawString("tick: " + tick_actual + "/s", 40, 20, 80);
             }
 
-            //System.out.println("select: " + select);
-            //System.out.println("placed: " + place);
+            // System.out.println("select: " + select);
+            // System.out.println("placed: " + place);
             Window.refresh();
-            //Window.cls();
+            // Window.cls();
         }
     }
 
@@ -190,7 +206,8 @@ public class Game {
     }
 
     public void addTower(int i, int j) {
-        all_level[level].addTower(Tower.towers[j][i].copy());
+        System.out.println("i: " + i + " j: " + j);
+        all_level[level].addTower(Tower.towers[i][j].copy());
     }
 
     public boolean isFailed() {

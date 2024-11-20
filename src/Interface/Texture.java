@@ -69,6 +69,8 @@ public class Texture {
 
             new Even("tibo", getImage(path_asset + "entity/tower/tibo.png")),
 
+            new Even("care", getImage(path_asset + "map/interface/caré.png")),
+
             new Even("rune_crystal", getImage(path_asset + "entity/tower/rune_crystal.png")),
             new Even("rune_crystal_atk1", getImage(path_asset + "entity/tower/rune_crystal_atk_sprite1.png")),
             new Even("rune_crystal_atk2", getImage(path_asset + "entity/tower/rune_crystal_atk_sprite1.png")),

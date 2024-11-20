@@ -11,7 +11,6 @@ import java.awt.HeadlessException;
 import java.awt.GradientPaint;
 
 import javax.imageio.ImageIO;
-import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
@@ -24,6 +23,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -45,7 +45,7 @@ public class Window extends JFrame {
 
     public static boolean fullscreen = false;
 
-    public static boolean fenetrer_without_border = true;
+    public static boolean fenetrer_without_border = false;
 
     public static int divident_ts = 18;
 
@@ -144,6 +144,19 @@ public class Window extends JFrame {
             }
         });
         int MarginTop = this.getInsets().top;
+        this.addMouseMotionListener(new MouseMotionListener() {
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                xMouse = e.getX();
+                yMouse = e.getY() - MarginTop;
+            }
+
+        });
         this.addMouseListener(new MouseListener() {
 
             @Override
@@ -155,7 +168,7 @@ public class Window extends JFrame {
             public void mousePressed(MouseEvent e) {
                 xMouse = e.getX();
                 yMouse = e.getY() - MarginTop;
-                ;
+
                 changeCursor(true);
                 Click = true;
             }
@@ -168,6 +181,8 @@ public class Window extends JFrame {
 
             @Override
             public void mouseEntered(MouseEvent e) {
+                xMouse = e.getX();
+                yMouse = e.getY() - MarginTop;
             }
 
             @Override
@@ -175,6 +190,7 @@ public class Window extends JFrame {
             }
 
         });
+
 
         cooldown.put(KeyEvent.VK_SPACE, System.currentTimeMillis());
         cooldown.put(KeyEvent.VK_ESCAPE, System.currentTimeMillis());

@@ -133,15 +133,15 @@ public class Level {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private void fillWave() {
         try {
-            for(int i = 0; i<Game.maxWave; i++) {
-                BufferedReader file_ = new BufferedReader(new FileReader("assets/level/wave/wave"+(i+1)+".w"));
+            for (int i = 0; i < Game.maxWave; i++) {
+                BufferedReader file_ = new BufferedReader(new FileReader("assets/level/wave/wave" + (i + 1) + ".w"));
                 String line;
                 ArrayList<String> list_name = new ArrayList<>();
                 ArrayList<Integer> list_time = new ArrayList<>();
 
-                while((line = file_.readLine()) != null) {
+                while ((line = file_.readLine()) != null) {
                     String content[] = split(line, "|");
-                    int time = (int) (Double.parseDouble(content[0])*1_000);
+                    int time = (int) (Double.parseDouble(content[0]) * 1_000);
                     list_time.add(time);
                     list_name.add(content[1]);
                 }
@@ -150,7 +150,7 @@ public class Level {
                 Integer times[] = convertToArrayI(list_time);
 
                 waves[i] = new Even[names.length];
-                for(int y = 0; y<names.length; y++) {
+                for (int y = 0; y < names.length; y++) {
                     waves[i][y] = new Even(times[y], names[y]);
                 }
                 file_.close();
@@ -163,7 +163,7 @@ public class Level {
 
     private String[] convertToArrayS(ArrayList<String> list) {
         String array[] = new String[list.size()];
-        for(int i = 0; i<array.length; i++) {
+        for (int i = 0; i < array.length; i++) {
             array[i] = list.get(i);
         }
         return array;
@@ -171,7 +171,7 @@ public class Level {
 
     private Integer[] convertToArrayI(ArrayList<Integer> list) {
         Integer array[] = new Integer[list.size()];
-        for(int i = 0; i<array.length; i++) {
+        for (int i = 0; i < array.length; i++) {
             array[i] = list.get(i);
         }
         return array;
@@ -367,14 +367,26 @@ public class Level {
             b++;
         }
 
-        for (int y = 0; y < Game.size_game_y; y += Window.Ts) {
+//        System.out.println(0<Game.size_game_y);
+        for(int i = 0; i<Game.size_game_y; i+=Window.Ts) {
+            //System.out.println( Window.x_offset-Window.Ts>=(500-Window.Ts));
+            for(int y = Window.x_offset-Window.Ts; y>=(-Window.Ts*3); y-=Window.Ts) {
+                Window.drawTexture(y, i, Window.Ts, Window.Ts, Texture.side_bricks);
+
+            }
+
+        }
+
+        /*
+         for (int y = 0; y < Game.size_game_y; y += Window.Ts) {
             for (int x = (100 - Window.Ts); x >= -50; x -= Window.Ts) {
                 Window.drawTexture(x, y, Window.Ts, Window.Ts, Texture.side_bricks);
             }
         }
+         */
 
         for (int y = 0; y < Game.size_game_y; y += Window.Ts) {
-            for (int x = Game.size_game_x; x < Window.width + Window.Ts; x += Window.Ts) {
+            for (int x = Game.size_game_x+Window.x_offset; x < Window.width + Window.Ts; x += Window.Ts) {
                 Window.drawTexture(x, y, Window.Ts, Window.Ts, Texture.side_bricks);
             }
         }
@@ -402,12 +414,14 @@ public class Level {
             if (s.two.y != 0) {
                 if (s.two.y > 0) {
                     for (int j = sub; j < Math.abs(d.one.y - s.one.y); j++) {
-                        Window.drawTexture(Window.x_offset + (s.one.x) * Window.Ts, (s.one.y + j) * Window.Ts, Window.Ts,
+                        Window.drawTexture(Window.x_offset + (s.one.x) * Window.Ts, (s.one.y + j) * Window.Ts,
+                                Window.Ts,
                                 Window.Ts, getTexturePathFromInt(0));
                     }
                 } else {
                     for (int j = sub; j < Math.abs(d.one.y - s.one.y); j++) {
-                        Window.drawTexture(Window.x_offset + (s.one.x) * Window.Ts, (s.one.y - j) * Window.Ts, Window.Ts,
+                        Window.drawTexture(Window.x_offset + (s.one.x) * Window.Ts, (s.one.y - j) * Window.Ts,
+                                Window.Ts,
                                 Window.Ts, getTexturePathFromInt(0));
                     }
                 }
@@ -419,7 +433,8 @@ public class Level {
 
         Window.drawTexture(Window.x_offset + this.end.x * Window.Ts, this.end.y * Window.Ts, Window.Ts, Window.Ts,
                 Texture.floor_grillage_portail_exit);
-        Window.drawTexture(Window.x_offset + this.path.get(0).one.x * Window.Ts, this.path.get(0).one.y * Window.Ts, Window.Ts,
+        Window.drawTexture(Window.x_offset + this.path.get(0).one.x * Window.Ts, this.path.get(0).one.y * Window.Ts,
+                Window.Ts,
                 Window.Ts, getTextureEntryFromInt(type_entry));
 
         for (Mob entity : mob) {
@@ -430,34 +445,44 @@ public class Level {
             entity.print();
         }
 
-        Window.drawString("round", 40, Window.x_offset+(int)(Game.size_game_x*0.82), 60, "#FFFFFF", "#000000");
-        Window.drawString(""+(actual_vague+1), 60, Window.x_offset+(int)(Game.size_game_x*0.82), 110, "#FFFFFF", "#000000");
-        Window.drawTexture(Window.x_offset+(int)(Game.size_game_x*0.88), 20, Window.Ts, Window.Ts, Texture.setting2_texture);
+        Window.drawString("round", (int) (Window.width * 0.02), Window.x_offset + (int) (Game.size_game_x * 0.87), 60,
+                "#FFFFFF", "#000000");
+        Window.drawString("" + (actual_vague + 1), (int) (Window.width * 0.031),
+                Window.x_offset + (int) (Game.size_game_x * 0.87), 110, "#FFFFFF", "#000000");
+        Window.drawTexture(Window.x_offset + (int) (Game.size_game_x * 0.94), 20, Window.Ts, Window.Ts,
+                Texture.setting2_texture);
 
-        //Window.drawString("level", 40, Game.size_game_x-Window.x_offset, 120);
-        //Window.drawString(""+this.level, 40, Game.size_game_x-Window.x_offset, 160);
+        // Window.drawString("level", 40, Game.size_game_x-Window.x_offset, 120);
+        // Window.drawString(""+this.level, 40, Game.size_game_x-Window.x_offset, 160);
 
-        Window.drawString(""+this.cash, 40, Window.x_offset+(int)(Game.size_game_x*0.20), 60, "#FFFFFF", "#000000");
-        Window.drawTexture(Window.x_offset+(int)(Game.size_game_x*0.15), 20, Window.Ts, Window.Ts, Texture.cash_coin);
+        Window.drawString("" + this.cash, 40, Window.x_offset + (int) (Game.size_game_x * 0.20), 60, "#FFFFFF",
+                "#000000");
+        Window.drawTexture(Window.x_offset + (int) (Game.size_game_x * 0.15), 20, Window.Ts, Window.Ts,
+                Texture.cash_coin);
 
-
-        Window.drawString(""+this.life, 40, Window.x_offset+(int)(Game.size_game_x*0.08), 60, "#FFFFFF", "#000000");
-        Window.drawTexture(Window.x_offset+(int)(Game.size_game_x*0.03), 20, Window.Ts, Window.Ts, Texture.heart);
+        Window.drawString("" + this.life, 40, Window.x_offset + (int) (Game.size_game_x * 0.08), 60, "#FFFFFF",
+                "#000000");
+        Window.drawTexture(Window.x_offset + (int) (Game.size_game_x * 0.03), 20, Window.Ts, Window.Ts, Texture.heart);
 
         /*
          * print tower to buy
          * side_size = 0.08*(ts*2.5*2)
          * 20+ts*2.5+ts*2.5+20
          */
-        
-        for(int i = 0; i<2; i++) {
-            for(int j = 0; j<5; j++) {
-                //System.out.println(Window.Ts);
-            
-                Window.drawTexture(Game.size_game_x+Game.side_buy+(int)(i*Window.Ts*2.5), (int) ((j*Window.Ts*2.5)+0.22*(Window.height)), (int) (Window.Ts*2), (int) (Window.Ts*2), Texture.tower_frame);
-            
-                Window.drawTexture(Game.size_game_x+Game.side_buy+((int)(Window.Ts*0.1))+(int)(i*Window.Ts*2.5), (int) ((j*Window.Ts*2.5)+0.22*(Window.height)+(int)(Window.Ts*0.1)), (int) (Window.Ts*1.8), (int) (Window.Ts*1.8), (Tower.towers[i][j].getTexture()));
-            
+
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < 5; j++) {
+                // System.out.println(Window.Ts);
+
+                Window.drawTexture(Window.x_offset +Game.size_game_x + Game.side_buy + (int) (i * Window.Ts * 2.5),
+                        (int) ((j * Window.Ts * 2.5) + 0.22 * (Window.height)), (int) (Window.Ts * 2),
+                        (int) (Window.Ts * 2), Texture.tower_frame);
+
+                Window.drawTexture(
+                    Window.x_offset + Game.size_game_x + Game.side_buy + ((int) (Window.Ts * 0.1)) + (int) (i * Window.Ts * 2.5),
+                        (int) ((j * Window.Ts * 2.5) + 0.22 * (Window.height) + (int) (Window.Ts * 0.1)),
+                        (int) (Window.Ts * 1.8), (int) (Window.Ts * 1.8), (Tower.towers[i][j].getTexture()));
+
             }
         }
 
@@ -466,7 +491,7 @@ public class Level {
     public void process() {
 
         for (Tower tower : tower) {
-            cash+=tower.attack(mob, path);
+            cash += tower.attack(mob, path);
         }
 
         int path_ = 0;
@@ -474,17 +499,17 @@ public class Level {
         while (m.hasNext()) {
             Mob entity = m.next();
             entity.clearEffect(); // clear les effet si durer terminer
-            if (Window.isOnCase_p(entity.x(), entity.y(), end.x*Window.Ts, end.y*Window.Ts)) {
-                this.life-=entity.damage();
-                if(this.life <= 0) {
-                    //System.out.println(life);
+            if (Window.isOnCase_p(entity.x(), entity.y(), end.x * Window.Ts, end.y * Window.Ts)) {
+                this.life -= entity.damage();
+                if (this.life <= 0) {
+                    // System.out.println(life);
                     this.failed = true;
                 }
                 m.remove();
                 continue;
             }
 
-            if(entity.dead()) {
+            if (entity.dead()) {
                 m.remove();
                 continue;
             }
@@ -495,19 +520,19 @@ public class Level {
             }
         }
 
-        if(actual_vague == waves.length) {
-           System.out.println("level finish, todo next");
+        if (actual_vague == waves.length) {
+            System.out.println("level finish, todo next");
         } else {
-            if(enemy_spawn_index == waves[actual_vague].length) {
-                if(mob.isEmpty()) {
+            if (enemy_spawn_index == waves[actual_vague].length) {
+                if (mob.isEmpty()) {
                     System.out.println("next wave");
                     nextWave();
                 }
             } else {
-                if(Game.convertTickToMs(Game.ticks_process) > waves[actual_vague][enemy_spawn_index].one ) {
+                if (Game.convertTickToMs(Game.ticks_process) > waves[actual_vague][enemy_spawn_index].one) {
                     spawnMob(waves[actual_vague][enemy_spawn_index].two);
                     enemy_spawn_index++;
-                    //System.out.println(enemy_spawn_index);
+                    // System.out.println(enemy_spawn_index);
 
                 }
             }
@@ -515,21 +540,63 @@ public class Level {
     }
 
     public void addTower(Tower t) {
-        t.setx(Window.xMouse);
-        t.sety(Window.yMouse);
-        System.out.println(t.x() + " - " + t.y());
-        tower.add(t);
+        t.setx(Window.xMouse - (Window.Ts / 2));
+        t.sety(Window.yMouse - (Window.Ts / 2));
+        //int x = Window.xMouse-Window.x_offset;//-(Window.Ts/2);
+        //int y = Window.yMouse;//-(Window.Ts/2);
+        //t.setx(((x/Window.Ts)*Window.Ts));
+        //t.sety((y/Window.Ts)*Window.Ts);
+        //System.out.println(t.x() + " - " + t.y());
+        //if(!isOnPath(t.x(), t.y())) {
+            tower.add(t);
+        //}
     }
 
     private void nextWave() {
         Game.start_level = System.currentTimeMillis();
-        cash+=(100+(actual_vague+1));
+        cash += (100 + (actual_vague + 1));
         actual_vague++;
         enemy_spawn_index = 0;
         Game.ticks_process = 0;
         for (Tower tow : tower) {
             tow.resetcooldown();
         }
+    }
+
+    private boolean isOnPath(int i, int j) {
+        int x1, x2, y1, y2;
+        for (int n = 0; n < path.size() - 1; n++) {
+            x1 = path.get(n).one.x*Window.Ts;
+            y1 = path.get(n).one.y*Window.Ts;
+            x2 = path.get(n+1).one.x*Window.Ts;
+            y2 = path.get(n+1).one.y*Window.Ts;
+
+            double h = Window.Ts / 2;
+
+            int a = y2 - y1;
+            int b = x1 - x2;
+            int c = x2 * y1 - x1 * y2;
+
+            // i j = top left
+            // i j+Ts = bot left
+            // i+ts j+ts = bot right
+            // i+ts j = top right
+
+            if(
+                pointToLineDistance(i, j, a, b, c) <= h ||
+                pointToLineDistance(i+Window.Ts, j, a, b, c) <= h ||
+                pointToLineDistance(i, j+Window.Ts, a, b, c) <= h ||
+                pointToLineDistance(i+Window.Ts, j+Window.Ts, a, b, c) <= h
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private double pointToLineDistance(int x, int y, int a, int b, int c) {
+        return Math.abs(a * x + b * y + c) / Math.sqrt(a * a + b * b);
     }
 
     private void spawnMob(String type) {
