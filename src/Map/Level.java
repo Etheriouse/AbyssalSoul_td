@@ -53,20 +53,6 @@ public class Level {
     public Level(String path) {
         decompile_from_file(path);
         fillWave();
-        Tower fire = new Tower(Window.x_offset + 14*Window.Ts, 8*Window.Ts, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 2000, TargetSet.close, 5);
-        fire.setEffect(new int[][]{{0, 80}, {0, 20}, {1, 40*5}});
-
-        Tower ice = new Tower(Window.x_offset + 8*Window.Ts, 14*Window.Ts, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 2000, TargetSet.last, 5);
-        ice.setEffect(new int[][]{{0, 80}, {1, 20}, {1, 0}});
-
-        Tower venti = new Tower(Window.x_offset + 18*Window.Ts, 14*Window.Ts, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 2000, TargetSet.first, 5);
-        venti.setEffect(new int[][]{{1, 400}, {0, 20}, {0, 0}});
-        tower.add(venti);
-        tower.add(ice);
-        tower.add(fire);
-
-        //tower.add(new Tower(Window.x_offset + 14*Window.Ts, 14*Window.Ts, "rune_crystal", Elementary.Rune, 10, 1.75, 700, 1));
-
         this.level = 1;
     }
 
@@ -369,13 +355,11 @@ public class Level {
     }
 
     public void print() {
-        int size_game_y = Window.height; // ratio = 1.38
-        int size_game_x = (int) Math.round((size_game_y * 1.38888888888) / 10.0f) * 10;
         int a = 0, b = 0;
         // System.out.println(Window.Ts);
 
-        for (int i = 0; i < size_game_y; i += Window.Ts) {
-            for (int y = Window.x_offset; y < size_game_x + Window.x_offset; y += Window.Ts) {
+        for (int i = 0; i < Game.size_game_y; i += Window.Ts) {
+            for (int y = Window.x_offset; y < Game.size_game_x + Window.x_offset; y += Window.Ts) {
                 Window.drawTexture(y, i, Window.Ts, Window.Ts, getTextureFromInt(this.floor[b][a]));
                 a++;
             }
@@ -383,14 +367,14 @@ public class Level {
             b++;
         }
 
-        for (int y = 0; y < size_game_y; y += Window.Ts) {
+        for (int y = 0; y < Game.size_game_y; y += Window.Ts) {
             for (int x = (100 - Window.Ts); x >= -50; x -= Window.Ts) {
                 Window.drawTexture(x, y, Window.Ts, Window.Ts, Texture.side_bricks);
             }
         }
 
-        for (int y = 0; y < size_game_y; y += Window.Ts) {
-            for (int x = size_game_x; x < Window.width + Window.Ts; x += Window.Ts) {
+        for (int y = 0; y < Game.size_game_y; y += Window.Ts) {
+            for (int x = Game.size_game_x; x < Window.width + Window.Ts; x += Window.Ts) {
                 Window.drawTexture(x, y, Window.Ts, Window.Ts, Texture.side_bricks);
             }
         }
@@ -446,22 +430,36 @@ public class Level {
             entity.print();
         }
 
-        Window.drawString("wave", 40, size_game_x-Window.x_offset+210, 40, "#FFFFFF", "#000000");
-        Window.drawString(""+(actual_vague+1), 40, size_game_x-Window.x_offset, 80);
+        Window.drawString("round", 40, Window.x_offset+(int)(Game.size_game_x*0.82), 60, "#FFFFFF", "#000000");
+        Window.drawString(""+(actual_vague+1), 60, Window.x_offset+(int)(Game.size_game_x*0.82), 110, "#FFFFFF", "#000000");
+        Window.drawTexture(Window.x_offset+(int)(Game.size_game_x*0.88), 20, Window.Ts, Window.Ts, Texture.setting2_texture);
+
+        //Window.drawString("level", 40, Game.size_game_x-Window.x_offset, 120);
+        //Window.drawString(""+this.level, 40, Game.size_game_x-Window.x_offset, 160);
+
+        Window.drawString(""+this.cash, 40, Window.x_offset+(int)(Game.size_game_x*0.20), 60, "#FFFFFF", "#000000");
+        Window.drawTexture(Window.x_offset+(int)(Game.size_game_x*0.15), 20, Window.Ts, Window.Ts, Texture.cash_coin);
 
 
-        Window.drawString("level", 40, size_game_x-Window.x_offset, 120);
-        Window.drawString(""+this.level, 40, size_game_x-Window.x_offset, 160);
+        Window.drawString(""+this.life, 40, Window.x_offset+(int)(Game.size_game_x*0.08), 60, "#FFFFFF", "#000000");
+        Window.drawTexture(Window.x_offset+(int)(Game.size_game_x*0.03), 20, Window.Ts, Window.Ts, Texture.heart);
 
-        Window.drawString("cash", 40, size_game_x-Window.x_offset, 200);
-        Window.drawString(""+this.cash, 40, size_game_x-Window.x_offset, 240);
-        Window.drawTexture(size_game_x, 200, Window.Ts, Window.Ts, Texture.cash_coin);
-
-
-        Window.drawString("life", 40, size_game_x-Window.x_offset, 280);
-        Window.drawString(""+this.life, 40, size_game_x-Window.x_offset, 320);
-        Window.drawTexture(size_game_x, 280, Window.Ts, Window.Ts, Texture.heart);
-
+        /*
+         * print tower to buy
+         * side_size = 0.08*(ts*2.5*2)
+         * 20+ts*2.5+ts*2.5+20
+         */
+        
+        for(int i = 0; i<2; i++) {
+            for(int j = 0; j<5; j++) {
+                //System.out.println(Window.Ts);
+            
+                Window.drawTexture(Game.size_game_x+Game.side_buy+(int)(i*Window.Ts*2.5), (int) ((j*Window.Ts*2.5)+0.22*(Window.height)), (int) (Window.Ts*2), (int) (Window.Ts*2), Texture.tower_frame);
+            
+                Window.drawTexture(Game.size_game_x+Game.side_buy+((int)(Window.Ts*0.1))+(int)(i*Window.Ts*2.5), (int) ((j*Window.Ts*2.5)+0.22*(Window.height)+(int)(Window.Ts*0.1)), (int) (Window.Ts*1.8), (int) (Window.Ts*1.8), (Tower.towers[i][j].getTexture()));
+            
+            }
+        }
 
     }
 
@@ -517,6 +515,9 @@ public class Level {
     }
 
     public void addTower(Tower t) {
+        t.setx(Window.xMouse);
+        t.sety(Window.yMouse);
+        System.out.println(t.x() + " - " + t.y());
         tower.add(t);
     }
 

@@ -42,11 +42,17 @@ public class Texture {
     public static Image side_bricks = getImage(path_asset + "map/interface/side_stone.png");
 
     public static Image heart = getImage(path_asset + "map/interface/heart.png");
-    public static Image cash_coin = getImage(path_asset + "map/interface/cash_coin.png");
+    public static Image cash_coin = getImage(path_asset + "map/interface/cash.png");
     public static Image tower_frame = getImage(path_asset + "map/interface/tower_frame.png");
 
     public static Image range_texture = getImage(path_asset + "entity/range.png");
     public static Image hitbox_texture = getImage(path_asset + "entity/hitbox.png");
+
+    public static Image setting_texture = getImage(path_asset + "map/interface/gear.png");
+    public static Image setting2_texture = getImage(path_asset + "map/interface/gear2.png");
+
+
+    public static Image care = getImage(path_asset + "map/interface/caré.png");
 
     public static Image icon = getImage(path_asset + "icon/icon.png");
 

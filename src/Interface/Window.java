@@ -7,8 +7,10 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.HeadlessException;
 import java.awt.GradientPaint;
 
+import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -43,7 +45,7 @@ public class Window extends JFrame {
 
     public static boolean fullscreen = false;
 
-    public static boolean fenetrer_without_border = false;
+    public static boolean fenetrer_without_border = true;
 
     public static int divident_ts = 18;
 
@@ -117,8 +119,13 @@ public class Window extends JFrame {
         this.setContentPane(panel);
         this.setVisible(true);
 
-        Cursor gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
-                new ImageIcon("assets/texture/cursor/cursor.png").getImage(), new Point(0, 0), "gauntlet cursor");
+        Cursor gauntletCursor = null;
+        try {
+            gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+                    ImageIO.read(new File("assets/texture/cursor/hand.png")), new Point(0, 0), "gauntlet cursor");
+        } catch (HeadlessException | IndexOutOfBoundsException | IOException e) {
+            e.printStackTrace();
+        }
         this.setCursor(gauntletCursor);
         keysDown = new TreeSet<Integer>();
         this.addKeyListener(new KeyListener() {
@@ -171,6 +178,7 @@ public class Window extends JFrame {
 
         cooldown.put(KeyEvent.VK_SPACE, System.currentTimeMillis());
         cooldown.put(KeyEvent.VK_ESCAPE, System.currentTimeMillis());
+        cooldown.put(MouseEvent.BUTTON1, System.currentTimeMillis());
 
         File ancien_font = new File("assets/font/ancien.ttf");
         try {
@@ -194,12 +202,24 @@ public class Window extends JFrame {
 
     private void changeCursor(boolean clicked) {
         if (clicked) {
-            Cursor gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
-                    new ImageIcon("assets/texture/cursor/cursor_clicked.png").getImage(), new Point(0, 0), "gauntlet cursor");
+            Cursor gauntletCursor = null;
+            try {
+                gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+                    ImageIO.read(new File("assets/texture/cursor/hand_clicked.png")), new Point(0, 0), "gauntlet cursor");
+            } catch (HeadlessException | IndexOutOfBoundsException | IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             this.setCursor(gauntletCursor);
         } else {
-            Cursor gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
-                    new ImageIcon("assets/texture/cursor/cursor.png").getImage(), new Point(0, 0), "gauntlet cursor");
+            Cursor gauntletCursor = null;
+            try {
+                gauntletCursor = Toolkit.getDefaultToolkit().createCustomCursor(
+                    ImageIO.read(new File("assets/texture/cursor/hand.png")), new Point(0, 0), "gauntlet cursor");
+            } catch (HeadlessException | IndexOutOfBoundsException | IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
             this.setCursor(gauntletCursor);
         }
     }

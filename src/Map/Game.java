@@ -1,25 +1,34 @@
 package Map;
 
+import Math.Point;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
+import Entity.Tower;
 import Interface.Texture;
 import Interface.Window;
 
 public class Game {
 
-    Level levels[] = init_levels();
-    int level_actual = 0;
+    Level all_level[] = init_levels();
+    int level = 0;
 
     public final int max_level = 10;
     public int fps = 60;
     public static final int init_tick = 40;
     public int tick = init_tick; // tick 40 rate normally
 
+    public static int size_game_y = Window.height; // ratio = 1.38
+    public static int size_game_x = (int) Math.round((size_game_y * 1.38888888888) / 10.0f) * 10;
+    public static int side_buy = (int) (0.08 * (Window.Ts * 2.5 * 2));
+
     public static final int maxWave = 6;
 
-    public static boolean show_hitbox = false;
+    public static boolean show_hitbox = true;
 
     public static boolean speed = false;
+
+    public static boolean show_advanced_tool_tips = true;
 
     public static long start_level;
     public static long ticks_process;
@@ -58,6 +67,11 @@ public class Game {
         boolean pause = false;
         ticks_process = 0;
 
+        boolean select = false;
+        boolean place = false;
+
+        Point wich_tower = new Point(0, 0);
+
         while (!isFailed()) {
 
             if (Window.keysDown.contains(KeyEvent.VK_SPACE)) { // x2 game
@@ -76,15 +90,52 @@ public class Game {
 
             }
 
+            if (Window.Click) {
+                if (Window.cooldown(MouseEvent.BUTTON1)) {
+                    Window.resetcooldown(MouseEvent.BUTTON1);
+                    if (Window.xMouse > Window.x_offset && Window.xMouse < size_game_x) {
+                        // System.out.println("in place zone");
+                        if (select) {
+                            // System.out.println("placed");
+                            select = false;
+                            place = true;
+                        }
+                    } else if (Window.xMouse >= size_game_x
+                            && Window.xMouse <= size_game_x + Window.Ts * 2 * 2.5) {
+                        // System.out.println("x valid");
+                        if (Window.yMouse > Window.height * 0.22
+                                && Window.yMouse < (Window.height * 0.22 + Window.Ts * 2.5 * 5)) {
+                            // System.out.println("in zone");
+                            select = !select;
+                            wich_tower.x = (((int) ((Window.xMouse-Window.x_offset)/(Window.Ts*2.6))) -9);
+                            wich_tower.y = ((int) ((Window.yMouse-Window.height * 0.22)/(Window.Ts*2.5)));
+                        }
+                    }
+                    // System.out.println("x: " + Window.xMouse + " y: " + Window.yMouse);
+
+                    // wich_tower.x = (Window.xMouse-Window.x_offset)/Window.Ts*2.5;
+                    // wich_tower.y = Window.yMouse/Window.Ts;
+                }
+            }
+            // System.out.println("doit etre entre x : ["+ (size_game_x) + " et " +
+            // (size_game_x + Window.Ts * 2 * 2.5) + "]");
+            // System.out.println("doit etre entre y : ["+ (Window.height * 0.22) + " et " +
+            // (Window.height * 0.22 + Window.Ts * 2.5 * 4.75) + "]");
+
+            if (place) {
+                addTower(wich_tower.x, wich_tower.y);
+                place = false;
+            }
+
             now = System.nanoTime();
-            if(!speed) {
+            if (!speed) {
                 duration_tick = 1_000_000_000 / tick;
             } else {
-                duration_tick = 1_000_000_000 / (tick*2);
+                duration_tick = 1_000_000_000 / (tick * 2);
             }
 
             if (now - tick_time > duration_tick) {
-                if(!pause) {
+                if (!pause) {
                     process();
                     ticks++;
                     ticks_process++;
@@ -106,10 +157,15 @@ public class Game {
                 calcule_fps = System.nanoTime();
             }
 
-            Window.drawString("fps: " + ips_actual, 40, 20, 40);
-            Window.drawString("tick: " + tick_actual + "/s", 40, 20, 80);
-            Window.refresh();
+            if (show_advanced_tool_tips) {
+                Window.drawString("fps: " + ips_actual, 40, 20, 40);
+                Window.drawString("tick: " + tick_actual + "/s", 40, 20, 80);
+            }
 
+            //System.out.println("select: " + select);
+            //System.out.println("placed: " + place);
+            Window.refresh();
+            //Window.cls();
         }
     }
 
@@ -133,15 +189,19 @@ public class Game {
         return (ms * Game.init_tick) / 1000;
     }
 
+    public void addTower(int i, int j) {
+        all_level[level].addTower(Tower.towers[j][i].copy());
+    }
+
     public boolean isFailed() {
-        return levels[level_actual].isFailed();
+        return all_level[level].isFailed();
     }
 
     public void process() {
-        levels[level_actual].process();
+        all_level[level].process();
     }
 
     public void print() {
-        levels[level_actual].print();
+        all_level[level].print();
     }
 }

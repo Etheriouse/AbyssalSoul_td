@@ -3,7 +3,6 @@ package Entity;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-
 import java.awt.Image;
 
 import Interface.Texture;
@@ -27,7 +26,6 @@ public class Tower extends Entity {
     private String texture_sprite;
     private int nb_sprit_anim;
     private int counter_sprite = 0;
-
 
     /*
      * 0 => zone
@@ -61,7 +59,8 @@ public class Tower extends Entity {
      * On donne la range en nombre de case
      * le cooldown en ms
      */
-    public Tower(int x, int y, String texture, String texture_srite, Elementary element, int damage, double range, int cooldown, TargetSet mods, int nb_sprit_anim) {
+    public Tower(int x, int y, String texture, String texture_srite, Elementary element, int damage, double range,
+            int cooldown, TargetSet mods, int nb_sprit_anim) {
         super(x, y, texture, element);
         this.texture_sprite = texture_srite;
         /*
@@ -103,7 +102,7 @@ public class Tower extends Entity {
                     }
                 }
             }
-            if(has_atk) {
+            if (has_atk) {
                 last_atk_time = Game.ticks_process;
             }
         } else if (target == TargetSet.last) { // laster
@@ -242,7 +241,7 @@ public class Tower extends Entity {
 
             }
 
-        } else if(this.target == TargetSet.close) { // TargetSet.close
+        } else if (this.target == TargetSet.close) { // TargetSet.close
             if (canAtk()) {
                 ArrayList<Mob> inRange = new ArrayList<>();
 
@@ -292,8 +291,9 @@ public class Tower extends Entity {
         return distance;
     }
 
-    public void setEffect(int effect[][]) {
+    public Tower setEffect(int effect[][]) {
         this.effect = effect;
+        return this;
     }
 
     public Point getHixbot() {
@@ -331,22 +331,57 @@ public class Tower extends Entity {
 
     @Override
     public Image getTexture() {
-        if(Game.ticks_process - last_atk_time >= tick_sprite_animation || Game.ticks_process <= 40) {
+        if (Game.ticks_process - last_atk_time >= tick_sprite_animation || Game.ticks_process <= 40) {
             counter_sprite = 0;
             return Texture.textures_entity.get(this.texture);
         } else {
-            int sprite = (int) ((Game.ticks_process-last_atk_time)%(nb_sprit_anim*2)) + 1;
-            return Texture.textures_entity.get(this.texture_sprite+sprite);
+            int sprite = (int) ((Game.ticks_process - last_atk_time) % (nb_sprit_anim * 2)) + 1;
+            return Texture.textures_entity.get(this.texture_sprite + sprite);
         }
     }
 
     public void print() {
         int size = this.range() * 2;
-            Window.drawTexture(this.x, this.y, Window.Ts, Window.Ts, this.getTexture());
+        Window.drawTexture(this.x, this.y, Window.Ts, Window.Ts, this.getTexture());
         if (Game.show_hitbox) {
             Window.drawTexture(this.getHixbot().x - this.range(), this.getHixbot().y - this.range(), size, size,
                     Texture.range_texture);
         }
     }
 
+    /*
+     *  Tower fire = new Tower(Window.x_offset + 14*Window.Ts, 8*Window.Ts, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 2000, TargetSet.close, 5);
+        fire.setEffect(new int[][]{{0, 80}, {0, 20}, {1, 40*5}});
+
+        Tower ice = new Tower(Window.x_offset + 8*Window.Ts, 14*Window.Ts, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 2000, TargetSet.last, 5);
+        ice.setEffect(new int[][]{{0, 80}, {1, 20}, {1, 0}});
+
+        Tower venti = new Tower(Window.x_offset + 18*Window.Ts, 14*Window.Ts, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 2000, TargetSet.first, 5);
+        venti.setEffect(new int[][]{{1, 400}, {0, 20}, {0, 0}});
+        
+        Tower venti = new Tower(0, 0, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 2000, TargetSet.first, 5);
+        
+     */
+
+    public static Tower towers[][] = {
+            { 
+                new Tower(0, 0, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 1000, TargetSet.first, 5),
+                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
+                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
+                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
+                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0)
+            },
+            { 
+                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
+                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
+                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
+                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
+                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0)
+            }
+    };
+
+    public Tower copy() {
+        return new Tower(this.x, this.y, this.texture, this.texture_sprite, this.type, this.damage, ((this.range-(Window.Ts*0.5))/Window.Ts),
+                this.cooldown, this.target, this.nb_sprit_anim);
+    }
 }
