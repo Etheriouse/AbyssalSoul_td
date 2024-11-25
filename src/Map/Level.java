@@ -34,7 +34,7 @@ public class Level {
     private ArrayList<Tower> tower = new ArrayList<>();
     private ArrayList<Mob> mob = new ArrayList<>();
 
-    private int cash = 350;
+    private int cash = 750;
 
     private int type_entry;
 
@@ -548,8 +548,13 @@ public class Level {
         //t.sety((y/Window.Ts)*Window.Ts);
         //System.out.println(t.x() + " - " + t.y());
         //if(!isOnPath(t.x(), t.y())) {
-            tower.add(t);
+        this.cash-=t.getPrice();    
+        tower.add(t);
         //}
+    }
+
+    public int getCash() {
+        return this.cash;
     }
 
     private void nextWave() {

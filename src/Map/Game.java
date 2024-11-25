@@ -116,6 +116,11 @@ public class Game {
                             if(Tower.towers[wich_tower.x][wich_tower.y].getTexture().equals(Texture.textures_entity.get("none"))) {
                                 select = false;
                             }
+
+                            if(Tower.towers[wich_tower.x][wich_tower.y].getPrice() > all_level[level].getCash()) {
+                                select = false;
+                            }
+                        
                         }
                     }
                     // System.out.println("x: " + Window.xMouse + " y: " + Window.yMouse);
@@ -221,4 +226,5 @@ public class Game {
     public void print() {
         all_level[level].print();
     }
+
 }

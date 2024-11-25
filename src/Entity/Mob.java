@@ -244,7 +244,7 @@ public class Mob extends Entity {
          */
         switch (type) {
             case "bloon":
-                return new Mob(10, 0, 0, "bloon", Elementary.Air, 3, 1, 0.4);
+                return new Mob(1, 0, 0, "bloon", Elementary.Air, 3, 1, 0.4);
 
             case "minigolem":
                 return new Mob(2, 0, 0, "minigolem", Elementary.Earth, 4, 2, 0.4);

@@ -26,6 +26,7 @@ public class Tower extends Entity {
     private String texture_sprite;
     private int nb_sprit_anim;
     private int counter_sprite = 0;
+    private int price = 0;
 
     /*
      * 0 => zone
@@ -60,7 +61,7 @@ public class Tower extends Entity {
      * le cooldown en ms
      */
     public Tower(int x, int y, String texture, String texture_srite, Elementary element, int damage, double range,
-            int cooldown, TargetSet mods, int nb_sprit_anim) {
+            int cooldown, TargetSet mods, int nb_sprit_anim, int price) {
         super(x, y, texture, element);
         this.texture_sprite = texture_srite;
         /*
@@ -73,9 +74,10 @@ public class Tower extends Entity {
         this.range = (int) (range * Window.Ts + (Window.Ts * 0.5));
         this.target = mods;
         this.nb_sprit_anim = nb_sprit_anim;
+        this.price = price;
     }
 
-    private Tower(int x, int y, String texture, String texture_srite, Elementary element, int damage, int range, int cooldown, TargetSet mods, int nb_sprit_anim) {
+    private Tower(int x, int y, String texture, String texture_srite, Elementary element, int damage, int range, int cooldown, TargetSet mods, int nb_sprit_anim, int price) {
         super(x, y, texture, element);
         this.texture_sprite = texture_srite;
         this.cooldown = cooldown;
@@ -84,6 +86,7 @@ public class Tower extends Entity {
         this.range = range;
         this.target = mods;
         this.nb_sprit_anim = nb_sprit_anim;
+        this.price = price;
     }
 
     /**
@@ -351,6 +354,10 @@ public class Tower extends Entity {
         }
     }
 
+    public int getPrice() {
+        return price;
+    }
+
     public void print() {
         int size = this.range() * 2;
         Window.drawTexture(this.x, this.y, Window.Ts, Window.Ts, this.getTexture());
@@ -374,29 +381,67 @@ public class Tower extends Entity {
 
      */
 
-    public static Tower towers[][] = {
+    public static Tower towers[][] = { // TODO faire les sprite d'animation
             {
-                new Tower(0, 0, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.75, 1000, TargetSet.first, 5),
-                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
-                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
-                new Tower(0, 0, "care", null, Elementary.Rune, 1, 1.75, 1000, TargetSet.first, 1),
-                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0)
+                /*
+                 * tour runique
+                 */
+                new Tower(0, 0, "rune_crystal", "rune_crystal_atk", Elementary.Rune, 1, 1.5, 1000, TargetSet.first, 5, 300),
+                /*
+                 * canon a eau jsp quoi ptdr
+                 */
+                new Tower(0, 0, "water_canon", "water_canon_atk", Elementary.Water, 2, 1.5, 1000, TargetSet.close, 1, 350),
+                /*
+                 * tombe stone avec de la lave qui tombe et tout
+                 */
+                new Tower(0, 0, "fire_tombestone", "fire_tombestone_atk", Elementary.Fire, 3, 1.75, 800, TargetSet.last, 1, 450).setEffect(new int[][]{{0, 0},{0, 0},{1, 6*Game.init_tick}}),
+                /*
+                 * oeuil sombre
+                 */
+                new Tower(0, 0, "abysse_eye", "abysse_eye_atk", Elementary.Abysse, 5, 2.0, 750, TargetSet.strong, 1, 500),
+                /*
+                 * pilier de terre qui fait apparaitre des fissure
+                 */
+                new Tower(0, 0, "earth_wake", "earth_wake_atk", Elementary.Earth, 4, 2.0, 1100, TargetSet.zone, 3, 400).setEffect(new int[][]{{0, 0},{1, 1*Game.init_tick}, {0, 0}})
             },
             {
-                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
-                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
-                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
-                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0),
-                new Tower(0, 0, "none", null, null, 0, 0, 0, null, 0)
+                /*
+                 * shuriken d'air
+                 */
+                new Tower(0, 0, "air_spiner", "air_spiner_atk", Elementary.Air, 1, 2.5, 500, TargetSet.first, 1, 250).setEffect(new int[][]{{1, 5*Game.init_tick},{0, 0}, {0, 0}}),
+                /*
+                 * singulariter d'arcan
+                 */
+                new Tower(0, 0, "ether_singularity", "ether_singularity_atk", Elementary.Ether, 8, 2.5, 1000, TargetSet.strong, 1, 750),
+                /*
+                 * Medusa de dr stone
+                 */
+                new Tower(0, 0, "dr_stone", "dr_stone_atk", Elementary.Earth, 7, 3.0, 2500, TargetSet.zone, 1, 600).setEffect(new int[][]{{0, 0},{1, 2*Game.init_tick}, {0, 0}}),
+                /*
+                 * tornade de feu
+                 */
+                new Tower(0, 0, "fire_storm", "fire_storm_atk", Elementary.Fire, 6, 1.5, 1000, TargetSet.last, 1, 550).setEffect(new int[][]{{0, 0},{0, 0}, {1, 5*Game.init_tick}}),
+                /*
+                 * ombre noir
+                 */
+                new Tower(0, 0, "abysse_shadow", "abysse_shadow_atk", Elementary.Abysse, 10, 1.75, 750, TargetSet.strong, 1, 700)
             }
     };
 
+    private Tower copyEffect(int eff[][]) {
+        for(int i = 0; i<eff.length; i++) {
+            this.effect[i][0] = eff[i][0];
+            this.effect[i][1] = eff[i][1];
+        }
+        return this;
+    }
+
     public Tower copy() {
-        return new Tower(x, y, texture, texture_sprite, type, damage, range, cooldown, target, nb_sprit_anim);
+        return new Tower(x, y, texture, texture_sprite, type, damage, range, cooldown, target, nb_sprit_anim, price).copyEffect(effect);
     }
 
     @Override
     public String toString() {
-        return this.texture;
+        return this.texture + " price: " + price;
     }
 }
