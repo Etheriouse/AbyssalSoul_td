@@ -483,6 +483,11 @@ public class Level {
                         (int) ((j * Window.Ts * 2.5) + 0.22 * (Window.height) + (int) (Window.Ts * 0.1)),
                         (int) (Window.Ts * 1.8), (int) (Window.Ts * 1.8), (Tower.towers[i][j].getTexture()));
 
+                Window.drawString(Tower.towers[i][j].getPrice()+"", 20, 
+                    +(int) (Window.Ts*0.75) + Window.x_offset +Game.size_game_x + Game.side_buy + (int) (i * Window.Ts * 2.5),
+                    (int) ((j * Window.Ts * 2.5) + 0.21 * (Window.height))
+                );
+
             }
         }
 

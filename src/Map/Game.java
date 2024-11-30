@@ -14,15 +14,15 @@ public class Game {
     int level = 0;
 
     public final int max_level = 10;
-    public int fps = 60;
-    public static final int init_tick = 40;
+    public int fps = 30;
+    public static final int init_tick = 80;
     public int tick = init_tick; // tick 40 rate normally
 
     public static int size_game_y = Window.height; // ratio = 1.38
     public static int size_game_x = (int) Math.round((size_game_y * 1.38888888888) / 10.0f) * 10;
     public static int side_buy = (int) (0.075 * (Window.Ts * 2.5 * 2));
 
-    public static final int maxWave = 6;
+    public static final int maxWave = 99;
 
     public static boolean show_hitbox = true;
 
@@ -152,7 +152,7 @@ public class Game {
             if (!speed) {
                 duration_tick = 1_000_000_000 / tick;
             } else {
-                duration_tick = 1_000_000_000 / (tick * 2);
+                duration_tick = 1_000_000_000 / (tick * 32);
             }
 
             if (now - tick_time > duration_tick) {
